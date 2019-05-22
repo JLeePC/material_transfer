@@ -13,7 +13,7 @@ import pyautogui
 import pygetwindow as gw
 import time
 
-pyautogui.PAUSE = 0.1
+pyautogui.PAUSE = 0
 print('Press Ctrl-C to quit.')
 
 labor = int(input('How many lines need to be skipped?: '))
@@ -142,8 +142,9 @@ try:
         print('OK done.')
         time.sleep(0.25)
         pyautogui.click(1034,597)
-        print('Complete.')
-
+        
 # Have a kill switch
 except KeyboardInterrupt:
     print('\nDone')
+
+print('\nComplete.')
