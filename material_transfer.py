@@ -45,6 +45,7 @@ while not stop_loop:
 # save      (75, 65)
 # transfer  (550, 60)
 # swap line (82, 223)
+# error     (863, 569)
 
 # ask if there are any lines to change
 # if yes then start the change loop
@@ -89,10 +90,14 @@ try:
             for number_of_up in range(line):
                 pyautogui.typewrite(['up'])
             
-    #input()
     # if amount to skip is >0 then go down past labor
+    labor_range = item_list[0]
+    labor_range = int(labor_range)-1
     if labor >0:
         for number_of_down_labor in range(labor):
+            pyautogui.typewrite(['down'])
+    else:
+        for number_out_of_labor in range(labor_range):
             pyautogui.typewrite(['down'])
             
     pyautogui.click(1890,1007)
@@ -142,11 +147,12 @@ try:
             print("Current value of getwindows: {}".format(len(gw.getWindowsWithTitle('Start Manufacturing Order Detail'))))
 
         print('OK done.')
-        time.sleep(0.25)
+        time.sleep(0.5)
         pyautogui.click(1034,597)
         
 # Have a kill switch
 except KeyboardInterrupt:
     print('\nDone')
-
+# close transfer window
+pyautogui.click(1004, 776)
 print('\nComplete.')
