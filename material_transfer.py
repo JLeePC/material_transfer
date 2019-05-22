@@ -95,6 +95,8 @@ try:
         for number_of_down_labor in range(labor):
             pyautogui.typewrite(['down'])
             
+    pyautogui.click(1890,1007)
+    input("Press ENTER to continue: ")      
     # click save
     pyautogui.click(75,65)
     time.sleep(2)
@@ -113,7 +115,7 @@ try:
         amount_transfer = amount_list[transfer]
         
         # click in IDLE window for inputs
-        pyautogui.click(1890,1007)
+        #pyautogui.click(1890,1007)
         
         # activate window
         pyautogui.click(827,252)
