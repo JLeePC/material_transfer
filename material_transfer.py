@@ -25,10 +25,10 @@ amount_list = []
 job_range = []
 stop_loop = False
 while not stop_loop:
-    item_input = input("Please enter the item number (enter 0 to quit): ")
+    item_input = input("Please enter the item number (enter + to quit): ")
     
     try:
-        if '0' in str(item_input):
+        if '+' in str(item_input):
             stop_loop = True
             break
     except ValueError:
@@ -110,7 +110,7 @@ try:
     pyautogui.click(550,60)
     okWindow = gw.getWindowsWithTitle('Start Manufacturing Order Detail')
     while len(gw.getWindowsWithTitle('Start Manufacturing Order Detail')) == 0:
-        time.sleep(0.5)
+        time.sleep(1)
         print("Current value of getwindows: {}".format(len(gw.getWindowsWithTitle('Start Manufacturing Order Detail'))))
 
 # material transfer loop
