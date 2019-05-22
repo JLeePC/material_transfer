@@ -25,10 +25,10 @@ amount_list = []
 job_range = []
 stop_loop = False
 while not stop_loop:
-    item_input = input("Please enter the item number (enter STOP to quit): ")
+    item_input = input("Please enter the item number (enter 0 to quit): ")
     
     try:
-        if 'STOP' in str(item_input) or 'stop' in str(item_input):
+        if '0' in str(item_input):
             stop_loop = True
             break
     except ValueError:
