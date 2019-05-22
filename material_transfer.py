@@ -51,10 +51,10 @@ while not stop_loop:
 # if yes then start the change loop
 max_range = len(item_list)
 pyautogui.click(1890,1007)
-skip_me = str(input("Do you have numbers to change? (Y/N): "))
+skip_me = str(input("Do you have numbers to change? (1/0): "))
 pyautogui.doubleClick(280, 240)
 try:
-    if 'Y' in skip_me or 'y' in skip_me:
+    if '1' in skip_me:
         if max_range ==1:
             item_change = item_list[0]
             amount_change = amount_list[0]
@@ -101,10 +101,10 @@ try:
             pyautogui.typewrite(['down'])
             
     pyautogui.click(1890,1007)
-    input("Press ENTER to continue: ")      
+    # input("Press ENTER to continue: ")      
     # click save
     pyautogui.click(75,65)
-    time.sleep(2)
+    time.sleep(1)
 
     # open transfer window
     pyautogui.click(550,60)
