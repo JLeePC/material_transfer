@@ -119,9 +119,6 @@ try:
         item_transfer = item_list[transfer] + labor
         amount_transfer = amount_list[transfer]
         
-        # click in IDLE window for inputs
-        #pyautogui.click(1890,1007)
-        
         # activate window
         pyautogui.click(827,252)
 
