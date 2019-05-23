@@ -13,7 +13,7 @@ import pyautogui
 import pygetwindow as gw
 import time
 
-pyautogui.PAUSE = 0
+pyautogui.PAUSE = 0.05
 print('Press Ctrl-C to quit.')
 
 labor = int(input('How many lines need to be skipped?: '))
@@ -143,7 +143,7 @@ try:
             time.sleep(0.25)
             print("Current value of getwindows: {}".format(len(gw.getWindowsWithTitle('Start Manufacturing Order Detail'))))
 
-        print('OK done.')
+        print('Loop Done.')
         time.sleep(0.5)
         pyautogui.click(1034,597)
         
