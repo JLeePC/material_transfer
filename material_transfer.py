@@ -47,6 +47,9 @@ max_range = len(item_list)
 pyautogui.click(1890,1007)
 skip_me = str(input("Do you have numbers to change? (1/0): "))
 pyautogui.doubleClick(280, 240)
+reset = item_list[0]
+for up_reset in range(reset):
+    pyautogui.typewrite(['up'])
 try:
     if '1' in skip_me:
         if max_range ==1:
@@ -61,18 +64,19 @@ try:
             # 'up' to top
             for number_of_up in range(line):
                 pyautogui.typewrite(['up'])
-        for change in range(0,max_range):
-            item_change = item_list[change]
-            amount_change = amount_list[change]
-            # use the current value to see how many to 'down'
-            line = int(labor) + int(item_change) -1
-            for number_of_down in range(line):
-                pyautogui.typewrite(['down'])
-            # material change
-            pyautogui.typewrite(str(amount_change))
-            # 'up' to top
-            for number_of_up in range(line):
-                pyautogui.typewrite(['up'])
+        else:
+            for change in range(0,max_range):
+                item_change = item_list[change]
+                amount_change = amount_list[change]
+                # use the current value to see how many to 'down'
+                line = int(labor) + int(item_change) -1
+                for number_of_down in range(line):
+                    pyautogui.typewrite(['down'])
+                # material change
+                pyautogui.typewrite(str(amount_change))
+                # 'up' to top
+                for number_of_up in range(line):
+                    pyautogui.typewrite(['up'])
     # if amount to skip is >0 then go down past labor
     labor_range = item_list[0]
     labor_range = int(labor_range)-1
@@ -85,6 +89,7 @@ try:
     pyautogui.click(1890,1007)
     # input("Press ENTER to continue: ")      
     # click save
+    input("Press ENTER to proceed: ")
     pyautogui.click(75,65)
     time.sleep(1)
     # open transfer window
