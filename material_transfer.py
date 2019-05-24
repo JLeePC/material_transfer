@@ -39,7 +39,7 @@ while not stop_loop:
         item_list.append(int(item_input))
         amount_list.append(str(amount_input))
     except ValueError:
-        print("Please enter a valid number or STOP to quit")
+        print("Please enter a valid number or + to quit")
         continue
 # ask if there are any lines to change
 # if yes then start the change loop
@@ -87,9 +87,12 @@ try:
         for number_out_of_labor in range(labor_range):
             pyautogui.typewrite(['down'])
     pyautogui.click(1890,1007)
+
+    # have an option to skip line items that tuen yellow
+    
     # input("Press ENTER to continue: ")      
+    skip_item = str(input("Are there any line items to skip? (1/0): "))
     # click save
-    input("Press ENTER to proceed: ")
     pyautogui.click(75,65)
     time.sleep(1)
     # open transfer window
