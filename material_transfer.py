@@ -46,6 +46,7 @@ while not stop_loop:
 max_range = len(item_list)
 pyautogui.click(1890,1007)
 skip_me = str(input("Do you have numbers to change? (1/0): "))
+print('Time Start')
 start_time = time.time()
 pyautogui.doubleClick(280, 240)
 reset = item_list[0]
@@ -98,8 +99,8 @@ try:
     pyautogui.click(550,60)
     okWindow = gw.getWindowsWithTitle('Start Manufacturing Order Detail')
     while len(gw.getWindowsWithTitle('Start Manufacturing Order Detail')) == 0:
-        time.sleep(1)
-        print("Current value of getwindows: {}".format(len(gw.getWindowsWithTitle('Start Manufacturing Order Detail'))))
+        time.sleep(0.25)
+        # print("Current value of getwindows: {}".format(len(gw.getWindowsWithTitle('Start Manufacturing Order Detail'))))
 # material transfer loop
     for transfer in range(0,max_range):
         item_transfer = item_list[transfer] + labor
@@ -120,7 +121,7 @@ try:
         okWindow = gw.getWindowsWithTitle('Start Manufacturing Order Detail')
         while len(gw.getWindowsWithTitle('Start Manufacturing Order Detail')) == 1:
             time.sleep(0.25)
-            print("Current value of getwindows: {}".format(len(gw.getWindowsWithTitle('Start Manufacturing Order Detail'))))
+            # print("Current value of getwindows: {}".format(len(gw.getWindowsWithTitle('Start Manufacturing Order Detail'))))
         print('Loop Done.')
         time.sleep(0.5)
         pyautogui.click(1034,597)
