@@ -46,6 +46,7 @@ while not stop_loop:
 max_range = len(item_list)
 pyautogui.click(1890,1007)
 skip_me = str(input("Do you have numbers to change? (1/0): "))
+start_time = time.time()
 pyautogui.doubleClick(280, 240)
 reset = item_list[0]
 for up_reset in range(reset):
@@ -128,4 +129,6 @@ except KeyboardInterrupt:
     print('\nDone')
 # close transfer window
 pyautogui.click(1004, 776)
+elapsed_time = round(time.time()-start_time, 3)
+print('\nElapsed time: ' + str(elapsed_time))
 print('\nComplete.')
