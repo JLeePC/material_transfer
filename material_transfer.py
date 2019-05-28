@@ -89,9 +89,7 @@ try:
     pyautogui.click(1890,1007)
 
     # have an option to skip line items that tuen yellow
-    
-    # input("Press ENTER to continue: ")      
-    skip_item = str(input("Are there any line items to skip? (1/0): "))
+    input("Press ENTER to continue: ")
     # click save
     pyautogui.click(75,65)
     time.sleep(1)
