@@ -18,6 +18,8 @@ import pyautogui
 import pygetwindow as gw
 import time
 pyautogui.PAUSE = 0.05
+print('Time Start')
+start_time = time.time()
 print('Press Ctrl-C to quit.')
 labor = int(input('How many lines need to be skipped?: '))
 # start loop to get the line and amount information
@@ -46,8 +48,6 @@ while not stop_loop:
 max_range = len(item_list)
 pyautogui.click(1890,1007)
 skip_me = str(input("Do you have numbers to change? (1/0): "))
-print('Time Start')
-start_time = time.time()
 pyautogui.doubleClick(280, 240)
 reset = item_list[0]
 for up_reset in range(reset):
