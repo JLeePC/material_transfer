@@ -18,8 +18,6 @@ import pyautogui
 import pygetwindow as gw
 import time
 pyautogui.PAUSE = 0.05
-print('Time Start')
-start_time = time.time()
 print('Press Ctrl-C to quit.')
 labor = int(input('How many lines need to be skipped?: '))
 # start loop to get the line and amount information
@@ -54,6 +52,7 @@ for up_reset in range(reset):
     pyautogui.typewrite(['up'])
 try:
     if '1' in skip_me:
+        start_change = time.time()
         if max_range ==1:
             item_change = item_list[0]
             amount_change = amount_list[0]
@@ -91,7 +90,10 @@ try:
     pyautogui.click(1890,1007)
 
     # have an option to skip line items that tuen yellow
-    input("Press ENTER to continue: ")
+    end_change = time.time()-start_change
+    print('\nChange value time: ' + str(round(end_change, 3)))
+    input("\nPress ENTER to continue (Press Ctrl-C to quit): ")
+    start_transfer = time.time()
     # click save
     pyautogui.click(75,65)
     time.sleep(1)
@@ -130,6 +132,8 @@ except KeyboardInterrupt:
     print('\nDone')
 # close transfer window
 pyautogui.click(1004, 776)
-elapsed_time = round(time.time()-start_time, 3)
-print('\nElapsed time: ' + str(elapsed_time))
+end_transfer = time.time() - start_transfer
+elapsed_time = round(end_transfer + end_change, 3)
+print('\nTransfer time: ' + str(round(end_transfer, 3)))
+print('\nElapsed automation time: ' + str(elapsed_time))
 print('\nComplete.')
