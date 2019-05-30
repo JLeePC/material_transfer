@@ -13,11 +13,13 @@
 # transfer  (550, 60)
 # swap line (82, 223)
 # error     (863, 569)
+# wip->stock(831, 682)
 
 import pyautogui
 import pygetwindow as gw
 import time
-pyautogui.PAUSE = 0.05
+total_start = time.time()
+pyautogui.PAUSE = 0.001
 print('Press Ctrl-C to quit.')
 labor = int(input('How many lines need to be skipped?: '))
 # start loop to get the line and amount information
@@ -80,29 +82,35 @@ try:
                     pyautogui.typewrite(['up'])
     # if amount to skip is >0 then go down past labor
     labor_range = item_list[0]
-    labor_range = int(labor_range)-1
+    labor_range = int(labor_range)
     if labor >0:
         for number_of_down_labor in range(labor):
             pyautogui.typewrite(['down'])
     else:
         for number_out_of_labor in range(labor_range):
             pyautogui.typewrite(['down'])
+        pyautogui.typewrite(['up'])
     pyautogui.click(1890,1007)
 
-    # have an option to skip line items that tuen yellow
-    end_change = time.time()-start_change
-    print('\nChange value time: ' + str(round(end_change, 3)))
-    input("\nPress ENTER to continue (Press Ctrl-C to quit): ")
-    start_transfer = time.time()
+    # have an option to skip line items that turn yellow
+    if '1' in skip_me:
+        end_change = time.time()-start_change
+        print('\nChange value time: ' + str(round(end_change, 3)))
+    # input("\nPress ENTER to continue (Press Ctrl-C to quit): ")
     # click save
     pyautogui.click(75,65)
-    time.sleep(1)
+    time.sleep(0.5)
     # open transfer window
     pyautogui.click(550,60)
     okWindow = gw.getWindowsWithTitle('Start Manufacturing Order Detail')
     while len(gw.getWindowsWithTitle('Start Manufacturing Order Detail')) == 0:
         time.sleep(0.25)
-        # print("Current value of getwindows: {}".format(len(gw.getWindowsWithTitle('Start Manufacturing Order Detail'))))
+    pyautogui.click(1890,1007)
+    print('\nCtrl-C to quit')
+    wip = input('Which direction do you want to transfer? (+ = to WIP/- = to Stock): ')
+    if '-' in wip:
+        pyautogui.click(831,682)
+    start_transfer = time.time()
 # material transfer loop
     for transfer in range(0,max_range):
         item_transfer = item_list[transfer] + labor
@@ -124,7 +132,7 @@ try:
         while len(gw.getWindowsWithTitle('Start Manufacturing Order Detail')) == 1:
             time.sleep(0.25)
             # print("Current value of getwindows: {}".format(len(gw.getWindowsWithTitle('Start Manufacturing Order Detail'))))
-        print('Loop Done.')
+        print('Item ' + str(item_transfer) + ' Done.')
         time.sleep(0.5)
         pyautogui.click(1034,597)
 # Have a kill switch
@@ -133,7 +141,10 @@ except KeyboardInterrupt:
 # close transfer window
 pyautogui.click(1004, 776)
 end_transfer = time.time() - start_transfer
-elapsed_time = round(end_transfer + end_change, 3)
 print('\nTransfer time: ' + str(round(end_transfer, 3)))
-print('\nElapsed automation time: ' + str(elapsed_time))
+if '1' in skip_me:
+    elapsed_time = round(end_transfer + end_change, 3)
+    print('\nElapsed automation time: ' + str(elapsed_time))
+total_time = round(time.time() - total_start, 3)
+print('\nTotal Time: ' + str(total_time))
 print('\nComplete.')
