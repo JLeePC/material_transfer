@@ -95,7 +95,7 @@ try:
     # have an option to skip line items that turn yellow
     if '1' in skip_me:
         end_change = time.time()-start_change
-        print('\nChange value time: ' + str(round(end_change, 3)))
+        print('\nChange value time: ' + str(round(end_change, 3)) + ' Seconds')
     # input("\nPress ENTER to continue (Press Ctrl-C to quit): ")
     # click save
     pyautogui.click(75,65)
@@ -144,7 +144,7 @@ end_transfer = time.time() - start_transfer
 print('\nTransfer time: ' + str(round(end_transfer, 3)))
 if '1' in skip_me:
     elapsed_time = round(end_transfer + end_change, 3)
-    print('\nElapsed automation time: ' + str(elapsed_time))
+    print('\nElapsed automation time: ' + str(elapsed_time) + ' Seconds')
 total_time = round(time.time() - total_start, 3)
-print('\nTotal Time: ' + str(total_time))
+print('\nTotal Time: ' + str(total_time) + ' Seconds')
 print('\nComplete.')
