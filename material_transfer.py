@@ -18,41 +18,41 @@
 import pyautogui
 import pygetwindow as gw
 import time
-total_start = time.time()
-pyautogui.PAUSE = 0.001
-print('Press Ctrl-C to quit.')
-labor = int(input('How many lines need to be skipped?: '))
-# start loop to get the line and amount information
-# type stop to move on
-item_list = []
-amount_list = []
-job_range = []
-stop_loop = False
-while not stop_loop:
-    item_input = input("Please enter the item number (enter + to quit): ")
-    try:
-        if '+' in str(item_input):
-            stop_loop = True
-            break
-    except ValueError:
-        continue
-    amount_input = input("Please enter the amount: ")    
-    try:
-        item_list.append(int(item_input))
-        amount_list.append(str(amount_input))
-    except ValueError:
-        print("Please enter a valid number or + to quit")
-        continue
-# ask if there are any lines to change
-# if yes then start the change loop
-max_range = len(item_list)
-pyautogui.click(1890,1007)
-skip_me = str(input("Do you have numbers to change? (1/0): "))
-pyautogui.doubleClick(280, 240)
-reset = item_list[0]
-for up_reset in range(reset):
-    pyautogui.typewrite(['up'])
 try:
+    total_start = time.time()
+    pyautogui.PAUSE = 0.001
+    print('Press Ctrl-C to quit.')
+    labor = int(input('How many lines need to be skipped?: '))
+    # start loop to get the line and amount information
+    # type stop to move on
+    item_list = []
+    amount_list = []
+    job_range = []
+    stop_loop = False
+    while not stop_loop:
+        item_input = input("Please enter the item number (enter + to quit): ")
+        try:
+            if '+' in str(item_input):
+                stop_loop = True
+                break
+        except ValueError:
+            continue
+        amount_input = input("Please enter the amount: ")    
+        try:
+            item_list.append(int(item_input))
+            amount_list.append(str(amount_input))
+        except ValueError:
+            print("Please enter a valid number or + to quit")
+            continue
+    # ask if there are any lines to change
+    # if yes then start the change loop
+    max_range = len(item_list)
+    pyautogui.click(1890,1007)
+    skip_me = str(input("Do you have numbers to change? (1/0): "))
+    pyautogui.doubleClick(280, 240)
+    reset = item_list[0]
+    for up_reset in range(reset):
+        pyautogui.typewrite(['up'])
     if '1' in skip_me:
         start_change = time.time()
         if max_range ==1:
@@ -96,7 +96,6 @@ try:
     if '1' in skip_me:
         end_change = time.time()-start_change
         print('\nChange value time: ' + str(round(end_change, 3)) + ' Seconds')
-    # input("\nPress ENTER to continue (Press Ctrl-C to quit): ")
     # click save
     pyautogui.click(75,65)
     time.sleep(0.5)
@@ -108,6 +107,31 @@ try:
     pyautogui.click(1890,1007)
     print('\nCtrl-C to quit')
     wip = input('Which direction do you want to transfer? (+ = to WIP/- = to Stock): ')
+    
+    placeholder = []
+    num_to_skip = []
+    stop_loop = False
+    skip_me = str(input("Do you have numbers to skip? (1/0)"))
+    if '1' in skip_me:
+        # stop_loop is a secondary measure to prevent infinite loops, not required, but precautionary
+        while not stop_loop:
+            user_input = input("Please enter the number you would like to skip (enter + to quit): ")
+            try:
+                if '+' in str(user_input):
+                    stop_loop = True
+                    break
+            except ValueError:
+                continue
+                
+            try:
+                placeholder.append(int(user_input))
+            except ValueError:
+                print("Please enter a valid number or STOP to quit")
+                continue
+        # We need to remove possible duplicates
+        for num in placeholder:
+            if num not in num_to_skip:
+                num_to_skip.append(num)
     if '-' in wip:
         pyautogui.click(831,682)
     start_transfer = time.time()
@@ -115,6 +139,12 @@ try:
     for transfer in range(0,max_range):
         item_transfer = item_list[transfer] + labor
         amount_transfer = amount_list[transfer]
+        
+        if item_transfer in num_to_skip:
+            continue
+        if float(amount_transfer) == 0:
+            continue
+        
         # activate window
         pyautogui.click(827,252)
         # double click search bar
