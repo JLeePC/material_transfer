@@ -111,7 +111,7 @@ try:
     placeholder = []
     num_to_skip = []
     stop_loop = False
-    skip_me = str(input("Do you have numbers to skip? (1/0)"))
+    skip_me = str(input("Do you have numbers to skip? (1/0): "))
     if '1' in skip_me:
         # stop_loop is a secondary measure to prevent infinite loops, not required, but precautionary
         while not stop_loop:
@@ -126,7 +126,7 @@ try:
             try:
                 placeholder.append(int(user_input))
             except ValueError:
-                print("Please enter a valid number or STOP to quit")
+                print("Please enter a valid number or + to quit")
                 continue
         # We need to remove possible duplicates
         for num in placeholder:
@@ -142,7 +142,7 @@ try:
         
         if item_transfer in num_to_skip:
             continue
-        if float(amount_transfer) == 0:
+        if str(amount_transfer) == 0:
             continue
         
         # activate window
@@ -160,11 +160,12 @@ try:
         # ok window
         okWindow = gw.getWindowsWithTitle('Start Manufacturing Order Detail')
         while len(gw.getWindowsWithTitle('Start Manufacturing Order Detail')) == 1:
-            time.sleep(0.25)
+            time.sleep(0.5)
             # print("Current value of getwindows: {}".format(len(gw.getWindowsWithTitle('Start Manufacturing Order Detail'))))
-        print('Item ' + str(item_transfer) + ' Done.')
         time.sleep(0.5)
         pyautogui.click(1034,597)
+        pyautogui.click(868,568)
+        print('Item ' + str(item_transfer) + ' Done.')
 # Have a kill switch
 except KeyboardInterrupt:
     print('\nDone')
