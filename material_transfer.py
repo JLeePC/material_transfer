@@ -91,22 +91,9 @@ try:
             pyautogui.typewrite(['down'])
         pyautogui.typewrite(['up'])
     pyautogui.click(1890,1007)
-
-    # have an option to skip line items that turn yellow
     if '1' in skip_me:
         end_change = time.time()-start_change
         print('\nChange value time: ' + str(round(end_change, 3)) + ' Seconds')
-    # click save
-    pyautogui.click(75,65)
-    time.sleep(0.5)
-    # open transfer window
-    pyautogui.click(550,60)
-    okWindow = gw.getWindowsWithTitle('Start Manufacturing Order Detail')
-    while len(gw.getWindowsWithTitle('Start Manufacturing Order Detail')) == 0:
-        time.sleep(0.25)
-    pyautogui.click(1890,1007)
-    print('\nCtrl-C to quit')
-    wip = input('Which direction do you want to transfer? (+ = to WIP/- = to Stock): ')
     
     placeholder = []
     num_to_skip = []
@@ -132,6 +119,18 @@ try:
         for num in placeholder:
             if num not in num_to_skip:
                 num_to_skip.append(num)
+    # click save
+    pyautogui.click(75,65)
+    time.sleep(0.5)
+    # open transfer window
+    pyautogui.click(550,60)
+    okWindow = gw.getWindowsWithTitle('Start Manufacturing Order Detail')
+    while len(gw.getWindowsWithTitle('Start Manufacturing Order Detail')) == 0:
+        time.sleep(0.25)
+    pyautogui.click(1890,1007)
+    print('\nCtrl-C to quit')
+    wip = input('Which direction do you want to transfer? (+ = to WIP/- = to Stock): ')
+    
     if '-' in wip:
         pyautogui.click(831,682)
     start_transfer = time.time()
