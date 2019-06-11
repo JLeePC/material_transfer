@@ -159,22 +159,28 @@ try:
         # ok window
         okWindow = gw.getWindowsWithTitle('Start Manufacturing Order Detail')
         while len(gw.getWindowsWithTitle('Start Manufacturing Order Detail')) == 1:
-            time.sleep(0.5)
+            time.sleep(0.25)
             # print("Current value of getwindows: {}".format(len(gw.getWindowsWithTitle('Start Manufacturing Order Detail'))))
-        time.sleep(0.5)
+        time.sleep(0.25)
         pyautogui.click(1034,597)
         pyautogui.click(868,568)
         print('Item ' + str(item_transfer) + ' Done.')
+    # close transfer window
+    pyautogui.click(1004, 776)
+    end_transfer = time.time() - start_transfer
+    print('\nTransfer time: ' + str(round(end_transfer, 3)))
+    if '1' in skip_me:
+        elapsed_time = round(end_transfer + end_change, 3)
+        print('\nElapsed automation time: ' + str(elapsed_time) + ' Seconds')
+    total_time = time.time() - total_start
+    minutes = 0
+    while total_time >= 60:
+        total_time = total_time - 60
+        minutes = minutes + 1
+    
+    print('\nTotal Time: ' + str(minutes) + ' Minutes ' + str(round(total_time, 3)) + ' Seconds')
+    print('\nComplete.')
 # Have a kill switch
 except KeyboardInterrupt:
     print('\nDone')
-# close transfer window
-pyautogui.click(1004, 776)
-end_transfer = time.time() - start_transfer
-print('\nTransfer time: ' + str(round(end_transfer, 3)))
-if '1' in skip_me:
-    elapsed_time = round(end_transfer + end_change, 3)
-    print('\nElapsed automation time: ' + str(elapsed_time) + ' Seconds')
-total_time = round(time.time() - total_start, 3)
-print('\nTotal Time: ' + str(total_time) + ' Seconds')
-print('\nComplete.')
+
