@@ -98,8 +98,8 @@ try:
     placeholder = []
     num_to_skip = []
     stop_loop = False
-    skip_me = str(input("Do you have numbers to skip? (1/0): "))
-    if '1' in skip_me:
+    skip_line = str(input("Do you have numbers to skip? (1/0): "))
+    if '1' in skip_line:
         # stop_loop is a secondary measure to prevent infinite loops, not required, but precautionary
         while not stop_loop:
             user_input = input("Please enter the number you would like to skip (enter + to quit): ")
@@ -168,9 +168,9 @@ try:
     # close transfer window
     pyautogui.click(1004, 776)
     end_transfer = time.time() - start_transfer
-    print('\nTransfer time: ' + str(round(end_transfer, 3)))
+    print('\nTransfer time: ' + str(round(end_transfer, 2)))
     if '1' in skip_me:
-        elapsed_time = round(end_transfer + end_change, 3)
+        elapsed_time = round(end_transfer + end_change, 2)
         print('\nElapsed automation time: ' + str(elapsed_time) + ' Seconds')
     total_time = time.time() - total_start
     minutes = 0
@@ -178,7 +178,7 @@ try:
         total_time = total_time - 60
         minutes = minutes + 1
     
-    print('\nTotal Time: ' + str(minutes) + ' Minutes ' + str(round(total_time, 3)) + ' Seconds')
+    print('\nTotal Time: ' + str(minutes) + ' Minutes ' + str(round(total_time, 2)) + ' Seconds')
     print('\nComplete.')
 # Have a kill switch
 except KeyboardInterrupt:
