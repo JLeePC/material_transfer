@@ -27,7 +27,7 @@ pyautogui.click(150,150)
 
 def copy_clipboard():
     pyautogui.hotkey('ctrl', 'c')
-    time.sleep(.01)  # ctrl-c is usually very fast but your program may execute faster
+    time.sleep(.01)
     return pyperclip.paste()
 
 try:
@@ -35,7 +35,8 @@ try:
         # Go to next job
         if ask_for_next_job is True:
             pyautogui.click(1890,1007)
-            next_job = input('\nEnter next job: ')
+            print('\nCtrl_c to quit.')
+            next_job = input('Enter next job: ')
             if len(next_job) <= 4:
                 # click window then type next job with zfill
                 next_job = next_job.zfill(2)
@@ -50,13 +51,57 @@ try:
                 pyautogui.doubleClick(214,102)
                 pyautogui.typewrite(str(next_job))
                 pyautogui.typewrite(['tab'])
-
-        # double click part number window
+                
         pyautogui.click(1423,15)
-        labor_lines = input('Are there labor lines?: ')
+        time.sleep(0.5)
+        change_part = input('Are there part numbers that need to change? ')
+        
+        if '1' in str(change_part):
+            pyautogui.PAUSE = 0.1
+            change_part = True
+            while change_part:
+                pyautogui.click(1423,15)
+                change_line = input('Which line needs to change?: ').zfill(2)
+                new_part = input('Whats the new part number?: ')
+                if '01' in change_line:
+                    pyautogui.doubleClick(219,242)
+                    pyautogui.click(919,289) # bottom
+                    time.sleep(0.25)
+                    pyautogui.typewrite(['tab'])
+                    pyautogui.typewrite('0')
+                    time.sleep(0.25)
+                    pyautogui.click(920,312) # new line
+                    pyautogui.typewrite(str(new_part))
+                    pyautogui.click(920,227) # top
+                else:
+                    pyautogui.doubleClick(219,242)
+                    change_line_range = int(change_line) - 1
+                    for number_of_down in range(change_line_range):
+                        pyautogui.PAUSE = 0.05
+                        pyautogui.typewrite(['down'])
+                    pyautogui.click(919,289) # bottom
+                    time.sleep(0.25)
+                    pyautogui.typewrite(['tab'])
+                    pyautogui.typewrite('0')
+                    time.sleep(0.25)
+                    pyautogui.click(920,312) # new line
+                    pyautogui.typewrite(str(new_part))
+                    pyautogui.click(920,227) # top
+                    for number_of_down in range(change_line_range):
+                        pyautogui.click(920,269)
+                pyautogui.click(1423,15)
+                change_more = input('Are there more lines to change?: ')
+                if '0' in change_more:
+                    change_part = False
+                    break
+        
+        pyautogui.click(1423,15)
+        pyautogui.PAUSE = 0.1
+        labor_lines = input('Are there labor lines? ')
         if not '0' in str(labor_lines):
-            right_bar = input('Is there a scroll bar? (1/0): ')
+            right_bar = input('Is there a scroll bar? ')
             if '1' in right_bar:
+                pyautogui.doubleClick(892,250)
                 pyautogui.doubleClick(892,250)
                 pyautogui.click(890,227)
         
@@ -70,7 +115,7 @@ try:
                 current_part_no = copy_clipboard()
                 current = current_part_no.split('-')
                 if labor_no in current:
-                    pyautogui.click(919,293)
+                    pyautogui.click(919,291)
                     labor = True
                     time.sleep(.5)
                     break
@@ -79,6 +124,7 @@ try:
             print('First LABOR line is: ' + str(first_labor))
             # go down till you meet that same labor line to see total amount of lines
             if '1' in right_bar:
+                pyautogui.doubleClick(892,250)
                 pyautogui.doubleClick(892,250)
                 pyautogui.click(890,227)
             pyautogui.doubleClick(219,242)
@@ -89,12 +135,19 @@ try:
                 current = current_part_no.split('-')
                 if current_part_no == first_labor:
                     labor_copy = True
+                    if '1' in right_bar:
+                        pyautogui.PAUSE = 0.1
+                        pyautogui.doubleClick(892,250)
+                        pyautogui.doubleClick(892,250)
+                        pyautogui.click(890,227)
                     print('Found labor copy after ' + str(total_lines) + ' lines.')
                     break
                 if labor_no in current:
-                    pyautogui.click(919,293)
+                    pyautogui.click(919,291)
+                    time.sleep(.5)
                     if '1' in right_bar:
                         pyautogui.PAUSE = 0.1
+                        pyautogui.doubleClick(892,250)
                         pyautogui.doubleClick(892,250)
                         pyautogui.click(890,227)
                     pyautogui.doubleClick(219,242)
@@ -102,7 +155,7 @@ try:
                     print('Moved ' + str(current_part_no))
                     time.sleep(0.25)
                     continue
-                pyautogui.PAUSE = 0.03
+                pyautogui.PAUSE = 0.05
                 total_lines = total_lines + 1
                 pyautogui.typewrite(['down'])
         pyautogui.PAUSE = 0.03
@@ -113,7 +166,7 @@ try:
         # type stop to move on
         item_list = []
         amount_list = []
-        job_range = []
+        #job_range = []
         stop_loop = False
         while not stop_loop:
             item_input = input("Please enter the item number (enter + to quit): ")
@@ -134,13 +187,12 @@ try:
         # if yes then start the change loop
         max_range = len(item_list)
         pyautogui.click(1890,1007)
-        skip_me = str(input("Do you have numbers to change? (1/0): "))
-        wip = input('Which direction do you want to transfer? (+ = to WIP/- = to Stock): ')
+        skip_me = input("Do you have numbers to change? (1/0): ")
         pyautogui.doubleClick(280, 240)
         reset = item_list[0]
         for up_reset in range(reset):
             pyautogui.typewrite(['up'])
-        if '1' in skip_me:
+        if '1' in str(skip_me):
             start_change = time.time()
             if max_range ==1:
                 item_change = item_list[0]
@@ -179,34 +231,35 @@ try:
                 pyautogui.typewrite(['down'])
             pyautogui.typewrite(['up'])
         pyautogui.click(1890,1007)
-        if '1' in skip_me:
+        if '1' in str(skip_me):
             end_change = time.time()-start_change
             print('\nChange value time: ' + str(round(end_change, 3)) + ' Seconds')
         
-        placeholder = []
-        num_to_skip = []
-        stop_loop = False
-        skip_line = str(input("Do you have numbers to skip? (1/0): "))
-        if '1' in skip_line:
+        #placeholder = []
+        #num_to_skip = []
+        #stop_loop = False
+        # skip_line = str(input("Do you have numbers to skip? (1/0): "))
+        #skip_line = '0'
+        #if '1' in skip_line:
             # stop_loop is a secondary measure to prevent infinite loops, not required, but precautionary
-            while not stop_loop:
-                user_input = input("Please enter the number you would like to skip (enter + to quit): ")
-                try:
-                    if '+' in str(user_input):
-                        stop_loop = True
-                        break
-                except ValueError:
-                    continue
+            #while not stop_loop:
+                #user_input = input("Please enter the number you would like to skip (enter + to quit): ")
+                #try:
+                    #if '+' in str(user_input):
+                        #stop_loop = True
+                        #break
+                #except ValueError:
+                    #continue
                     
-                try:
-                    placeholder.append(int(user_input))
-                except ValueError:
-                    print("Please enter a valid number or + to quit")
-                    continue
+                #try:
+                    #placeholder.append(int(user_input))
+                #except ValueError:
+                    #print("Please enter a valid number or + to quit")
+                    #continue
             # We need to remove possible duplicates
-            for num in placeholder:
-                if num not in num_to_skip:
-                    num_to_skip.append(num)
+            #for num in placeholder:
+                #if num not in num_to_skip:
+                    #num_to_skip.append(num)
         # click save
         pyautogui.click(75,65)
         time.sleep(0.5)
@@ -217,8 +270,8 @@ try:
             time.sleep(0.25)
         time.sleep(0.25)
         pyautogui.click(1800,1007)
-        #print('\nCtrl-C to quit')
-        #wip = input('Which direction do you want to transfer? (+ = to WIP/- = to Stock): ')
+        print('\nCtrl-C to quit')
+        wip = input('Which direction do you want to transfer? (+ = to WIP/- = to Stock): ')
         
         if '-' in wip:
             pyautogui.click(831,682)
@@ -228,8 +281,8 @@ try:
             item_transfer = item_list[transfer] + labor
             amount_transfer = amount_list[transfer]
             
-            if item_transfer in num_to_skip:
-                continue
+            #if item_transfer in num_to_skip:
+                #continue
             if float(amount_transfer) == 0:
                 continue
             
@@ -271,6 +324,7 @@ try:
         while len(gw.getWindowsWithTitle('Start Manufacturing Order Detail')) != 0:
                 time.sleep(0.5)
         print('\nCompleted Loop.')
+        print('----------------------------------------')
         ask_for_next_job = True
 # Have a kill switch
 except KeyboardInterrupt:
