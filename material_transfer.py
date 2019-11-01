@@ -21,7 +21,6 @@ import time
 import pyperclip
 
 ask_for_next_job = False
-total_start = time.time()
 pyautogui.PAUSE = 0.1
 pyautogui.click(150,150)
 
@@ -32,6 +31,7 @@ def copy_clipboard():
 
 try:
     while True:
+        total_start = time.time()
         # Go to next job
         if ask_for_next_job is True:
             pyautogui.click(1890,1007)
@@ -51,10 +51,26 @@ try:
                 pyautogui.doubleClick(214,102)
                 pyautogui.typewrite(str(next_job))
                 pyautogui.typewrite(['tab'])
-                
+
+        pyautogui.doubleClick(219,242)
         pyautogui.click(1423,15)
-        time.sleep(0.5)
-        change_part = input('Are there part numbers that need to change? ')
+        #time.sleep(0.5)
+        add_part = input('Are there part numbers to add?: ')
+        
+        if '1' in str(add_part):
+            add_part = True
+            while add_part:
+                new_part = input('What is the new part number?: ')
+                pyautogui.click(920,312) # new line
+                pyautogui.typewrite(str(new_part))
+                pyautogui.typewrite(['tab'])
+                pyautogui.click(1423,15)
+                add_more = input('Are there more parts to add?: ')
+                if '0' in str(add_more):
+                    add_part = False
+                    break
+        
+        change_part = input('Are there part numbers that need to change?: ')
         
         if '1' in str(change_part):
             pyautogui.PAUSE = 0.1
@@ -62,14 +78,14 @@ try:
             while change_part:
                 pyautogui.click(1423,15)
                 change_line = input('Which line needs to change?: ').zfill(2)
-                new_part = input('Whats the new part number?: ')
+                new_part = input('What is the new part number?: ')
                 if '01' in change_line:
                     pyautogui.doubleClick(219,242)
                     pyautogui.click(919,289) # bottom
-                    time.sleep(0.25)
+                    time.sleep(0.5)
                     pyautogui.typewrite(['tab'])
                     pyautogui.typewrite('0')
-                    time.sleep(0.25)
+                    time.sleep(0.5)
                     pyautogui.click(920,312) # new line
                     pyautogui.typewrite(str(new_part))
                     pyautogui.click(920,227) # top
@@ -80,10 +96,10 @@ try:
                         pyautogui.PAUSE = 0.05
                         pyautogui.typewrite(['down'])
                     pyautogui.click(919,289) # bottom
-                    time.sleep(0.25)
+                    time.sleep(0.5)
                     pyautogui.typewrite(['tab'])
                     pyautogui.typewrite('0')
-                    time.sleep(0.25)
+                    time.sleep(0.5)
                     pyautogui.click(920,312) # new line
                     pyautogui.typewrite(str(new_part))
                     pyautogui.click(920,227) # top
@@ -108,19 +124,21 @@ try:
         if not '0' in str(labor_lines):
             print('Looking for LABOR lines.')
             pyautogui.doubleClick(219,242)
-            # go till first labor then move that to the bottom
             labor_no = str('LABOR')
             labor = False
+            total_lines = 0
             while labor is False:
-                current_part_no = copy_clipboard()
-                current = current_part_no.split('-')
+                current_part_no1 = copy_clipboard()
+                current = current_part_no1.split('-')
                 if labor_no in current:
                     pyautogui.click(919,291)
                     labor = True
                     time.sleep(.5)
                     break
                 pyautogui.typewrite(['down'])
-            first_labor = current_part_no
+                pyautogui.PAUSE = 0.05
+                total_lines = total_lines + 1
+            first_labor = current_part_no1
             print('First LABOR line is: ' + str(first_labor))
             # go down till you meet that same labor line to see total amount of lines
             if '1' in right_bar:
@@ -128,11 +146,25 @@ try:
                 pyautogui.doubleClick(892,250)
                 pyautogui.click(890,227)
             pyautogui.doubleClick(219,242)
+            print('Lines before Labor line: ' + str(total_lines))
             labor_copy = False
-            total_lines = 0
+            total_down = True
             while labor_copy is False:
+                if total_lines != 0:
+                    if total_down:
+                        print('\nGoing down.')
+                        for i in range(0,total_lines):
+                            pyautogui.PAUSE = 0.03
+                            pyautogui.typewrite(['down'])
+                            time.sleep(0.03)
+                        time.sleep(0.1)
+                        print('Down complete.')
+                #input('Enter')
+                pyautogui.PAUSE = 0.1
                 current_part_no = copy_clipboard()
+                time.sleep(0.1)
                 current = current_part_no.split('-')
+                time.sleep(0.1)
                 if current_part_no == first_labor:
                     labor_copy = True
                     if '1' in right_bar:
@@ -140,25 +172,26 @@ try:
                         pyautogui.doubleClick(892,250)
                         pyautogui.doubleClick(892,250)
                         pyautogui.click(890,227)
-                    print('Found labor copy after ' + str(total_lines) + ' lines.')
+                    print('\nFound labor copy.')
                     break
                 if labor_no in current:
                     pyautogui.click(919,291)
-                    time.sleep(.5)
+                    time.sleep(.1)
                     if '1' in right_bar:
                         pyautogui.PAUSE = 0.1
                         pyautogui.doubleClick(892,250)
                         pyautogui.doubleClick(892,250)
                         pyautogui.click(890,227)
                     pyautogui.doubleClick(219,242)
-                    total_lines = 0
                     print('Moved ' + str(current_part_no))
-                    time.sleep(0.25)
+                    total_down = True
+                    time.sleep(0.5)
                     continue
                 pyautogui.PAUSE = 0.05
-                total_lines = total_lines + 1
+                print('\nCurrent part: ' +current_part_no)
                 pyautogui.typewrite(['down'])
-        pyautogui.PAUSE = 0.03
+                total_down = False
+        pyautogui.PAUSE = 0.05
         print('\nPress Ctrl-C to quit.')
         pyautogui.click(1890,1007)
         labor = int(input('How many lines need to be skipped?: '))
