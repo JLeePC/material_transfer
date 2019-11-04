@@ -86,14 +86,15 @@ try:
         if released_button is not None:
 
             pyautogui.click(150,150)
-            time.sleep(1)
-            button_location = pyautogui.locateOnScreen('up_arrow.png')
+            print('\nLooking for side bar.')
+            #time.sleep(1)
+            button_location = pyautogui.locateOnScreen('up_arrow.png', region=(875,207,29,42))
             time.sleep(1)
             
             if button_location is None:
-                print('\nUp arrow not found')
+                print('Up arrow not found')
             else:
-                print('\nUp arrow found')
+                print('Up arrow found')
                 pyautogui.click(890,250, clicks=4, interval=0.05)
                 pyautogui.click(890,227)
                 
@@ -313,7 +314,7 @@ try:
             pyautogui.PAUSE = 0.05
             print('\nPress Ctrl-C to quit.')
             pyautogui.click(1423,15)
-            labor = int(input('How many lines need to be skipped?: '))
+            line_skip = int(input('How many lines need to be skipped?: '))
             # start loop to get the line and amount information
             # type stop to move on
             item_list = []
@@ -354,68 +355,56 @@ try:
                     item_change = item_list[0]
                     amount_change = amount_list[0]
                     # use the current value to see how many to 'down'
-                    line = int(labor) + int(item_change) -1
+                    line = int(line_skip) + int(item_change) -1
                     for number_of_down in range(line):
                         pyautogui.typewrite(['down'])
                         time.sleep(0.05)
                     # material change
                     pyautogui.typewrite(str(amount_change))        
-                    # 'up' to top
-                    for number_of_up in range(line):
-                        pyautogui.typewrite(['up'])
+                    
                 else:
-                    for change in range(0,max_range):
+                    item_change_1 = item_list[0]
+                    amount_change_1 = amount_list[0]
+                    line_1 = int(line_skip) + int(item_change_1) -1
+                    for number_of_down in range(line_1):
+                        pyautogui.typewrite(['down'])
+                    # material change
+                    pyautogui.typewrite(str(amount_change_1))
+
+                    last_line = item_change_1
+                    
+                    for change in range(1,max_range):
                         item_change = item_list[change]
                         amount_change = amount_list[change]
                         # use the current value to see how many to 'down'
-                        line = int(labor) + int(item_change) -1
-                        for number_of_down in range(line):
-                            pyautogui.typewrite(['down'])
+                        line = int(item_change) - last_line
+                        #print('last line ' + str(last_line))
+                        #print('line ' + str(line))
+                        if line > 0:
+                            for number_of_down in range(line):
+                                #print('down')
+                                pyautogui.typewrite(['down'])
+                        elif line < 0:
+                            for number_of_up in range(abs(line)):
+                                #print('up')
+                                pyautogui.typewrite(['up'])
                         # material change
                         pyautogui.typewrite(str(amount_change))
-                        # 'up' to top
-                        for number_of_up in range(line):
-                            pyautogui.typewrite(['up'])
+                        last_line = item_change
+                        
+                            
             # if amount to skip is >0 then go down past labor
             labor_range = item_list[0]
             labor_range = int(labor_range)
-            if labor >0:
-                for number_of_down_labor in range(labor):
+            if len(item_list) == 0:
+                for number_of_down_labor in range(line_skip):
                     pyautogui.typewrite(['down'])
-            else:
-                for number_out_of_labor in range(labor_range):
-                    pyautogui.typewrite(['down'])
-                pyautogui.typewrite(['up'])
+            
             pyautogui.click(1423,15)
             if '1' in str(skip_me):
                 end_change = time.time()-start_change
                 print('\nChange value time: ' + str(round(end_change, 3)) + ' Seconds')
-            
-            #placeholder = []
-            #num_to_skip = []
-            #stop_loop = False
-            # skip_line = str(input("Do you have numbers to skip? (1/0): "))
-            #skip_line = '0'
-            #if '1' in skip_line:
-                # stop_loop is a secondary measure to prevent infinite loops, not required, but precautionary
-                #while not stop_loop:
-                    #user_input = input("Please enter the number you would like to skip (enter + to quit): ")
-                    #try:
-                        #if '+' in str(user_input):
-                            #stop_loop = True
-                            #break
-                    #except ValueError:
-                        #continue
-                        
-                    #try:
-                        #placeholder.append(int(user_input))
-                    #except ValueError:
-                        #print("Please enter a valid number or + to quit")
-                        #continue
-                # We need to remove possible duplicates
-                #for num in placeholder:
-                    #if num not in num_to_skip:
-                        #num_to_skip.append(num)
+                
             # click save
             pyautogui.click(75,65)
             time.sleep(0.5)
@@ -435,7 +424,7 @@ try:
             start_transfer = time.time()
         # material transfer loop
             for transfer in range(0,max_range):
-                item_transfer = item_list[transfer] + labor
+                item_transfer = item_list[transfer] + line_skip
                 amount_transfer = amount_list[transfer]
                 
                 #if item_transfer in num_to_skip:
