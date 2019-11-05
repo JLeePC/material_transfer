@@ -103,11 +103,8 @@ try:
 
                 labor1 = pyautogui.locateOnScreen('labor1.png', region=(110,232,134,737))
                 time.sleep(0.1)
-                print(labor1)
                 labor2 = pyautogui.locateOnScreen('labor2.png', region=(110,232,134,737))
-
                 time.sleep(0.1)
-                print(labor2)
 
                 if labor1 or labor2 is not None:
                     page = 1
@@ -156,31 +153,31 @@ try:
             elif button_location is None and labor_lines is True:
                 pyautogui.doubleClick(219,242)
                 down_loop = True
-                while down_loop:
-                    im1 = pyautogui.screenshot()
-                    pyautogui.typewrite(['down'])
-                    im2 = pyautogui.screenshot()
-                    if im1 == im2:
-                        print('Labor at bottom')
-                        down_loop = False
-                        break
-                current_part_no3 = copy_clipboard()
-                current = current_part_no3.split('-')
+                current_part_no4 = copy_clipboard()
+                current = current_part_no4.split('-')
                 if labor_no in current:
-                    labor_lines = False
-                
-
-            # if its not a scrollable page use the screen shot to go down till theres no changes
-            # then go up to see if there are labor lines above parts
-            
-            
+                    print('Labor at top.')
+                    down_loop = False
+                    labor_lines = True
+                else:
+                    while down_loop:
+                        im1 = pyautogui.screenshot()
+                        pyautogui.typewrite(['down'])
+                        im2 = pyautogui.screenshot()
+                        if im1 == im2:
+                            down_loop = False
+                            break
+                        current_part_no3 = copy_clipboard()
+                        current = current_part_no3.split('-')
+                    if labor_no in current:
+                        labor_lines = False
+                        print('Labor at bottom')
+                            
             if labor_lines:
-                
                 if button_location is not None:
                     pyautogui.doubleClick(892,250)
                     pyautogui.doubleClick(892,250)
                     pyautogui.click(890,227)
-            
             if labor_lines:
                 print('\nLooking for LABOR lines.')
                 pyautogui.doubleClick(219,242)
@@ -312,9 +309,9 @@ try:
             
             
             pyautogui.PAUSE = 0.05
+            line_skip = int(input('How many lines need to be skipped?: '))
             print('\nPress Ctrl-C to quit.')
             pyautogui.click(1423,15)
-            line_skip = int(input('How many lines need to be skipped?: '))
             # start loop to get the line and amount information
             # type stop to move on
             item_list = []
