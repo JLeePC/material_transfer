@@ -1,24 +1,12 @@
 #! python3
 # MISys semi-auto transfer
 
-# coordinates:
-# window   (x=1896, y=484)
-# line no. (x=590, y=453)
-# quantity (x=615, y=611)
-# transfer (x=621, y=779)
-# ok       (x=1034, y=597)
-# IDLE     (x=1890, y=1007)
-# required  (280, 240)
-# save      (75, 65)
-# transfer  (550, 60)
-# swap line (82, 223)
-# error     (863, 569)
-# wip->stock(831, 682)
-
 import pyautogui
 import pygetwindow as gw
 import time
 import pyperclip
+import csv
+import os
 from file_routing import file_routing
 from copy_clipboard import copy_clipboard
 
@@ -372,7 +360,6 @@ try:
             pyautogui.click(1423,15)
             skip_me = input("Do you have numbers to change? (1/0): ")
             pyautogui.doubleClick(280, 240)
-            reset = item_list[0]
             if '1' in str(skip_me):
                 start_change = time.time()
                 if max_range ==1:
@@ -415,7 +402,50 @@ try:
                         # material change
                         pyautogui.typewrite(str(amount_change))
                         last_line = item_change
-                        
+
+            part_list = []
+            pyautogui.doubleClick(219,242)
+            if max_range ==1:
+                item_change = item_list[0]
+                # use the current value to see how many to 'down'
+                line = int(line_skip) + int(item_change) -1
+                for number_of_down in range(line):
+                    pyautogui.typewrite(['down'])
+                    time.sleep(0.05)
+                # material change
+                part_no = copy_clipboard()
+                part_list.append(str(part_no))
+                
+            else:
+                item_change_1 = item_list[0]
+                line_1 = int(line_skip) + int(item_change_1) -1
+                for number_of_down in range(line_1):
+                    pyautogui.typewrite(['down'])
+                # material change
+                part_no = copy_clipboard()
+                part_list.append(str(part_no))
+
+                last_line = item_change_1
+                
+                for change in range(1,max_range):
+                    item_change = item_list[change]
+                    amount_change = amount_list[change]
+                    # use the current value to see how many to 'down'
+                    line = int(item_change) - last_line
+                    #print('last line ' + str(last_line))
+                    #print('line ' + str(line))
+                    if line > 0:
+                        for number_of_down in range(line):
+                            #print('down')
+                            pyautogui.typewrite(['down'])
+                    elif line < 0:
+                        for number_of_up in range(abs(line)):
+                            #print('up')
+                            pyautogui.typewrite(['up'])
+                    # material change
+                    part_no = copy_clipboard()
+                    part_list.append(str(part_no))
+                    last_line = item_change
                             
             # if amount to skip is >0 then go down past labor
             labor_range = item_list[0]
@@ -447,6 +477,8 @@ try:
                 pyautogui.click(831,682)
             start_transfer = time.time()
         # material transfer loop
+            red_x_list = []
+            transfer_time_list = []
             for transfer in range(0,max_range):
                 item_transfer = item_list[transfer] + line_skip
                 amount_transfer = amount_list[transfer]
@@ -468,6 +500,9 @@ try:
                 pyautogui.typewrite(str(amount_transfer))
                 # click transfer
                 pyautogui.click(621,779)
+                
+                transfer_time = time.strftime('%Y-%m-%d, %Hh %Mm %Ss', time.localtime())
+                
                 time.sleep(1)
                 # ok window
                 okWindow = gw.getWindowsWithTitle('Start Manufacturing Order Detail')
@@ -475,9 +510,24 @@ try:
                     time.sleep(0.25)
                     # print("Current value of getwindows: {}".format(len(gw.getWindowsWithTitle('Start Manufacturing Order Detail'))))
                 time.sleep(0.25)
+                
+                red_x = pyautogui.locateOnScreen('red_x.png', region=(650,450,100,100))
+
+                time.sleep(0.25)
+
+                transfer_time_list.append(transfer_time)
+                
                 pyautogui.click(1034,597)
                 pyautogui.click(868,568)
                 print('Item ' + str(item_transfer) + ' Done.')
+                
+                if red_x is not None:
+                    print('Red_x')
+                    red_x_list.append('X')
+
+                else:
+                    print('None')
+                    red_x_list.append('-')
             # close transfer window
             pyautogui.click(1004, 776)
 
@@ -485,8 +535,49 @@ try:
                 time.sleep(0.5)
 
             pyautogui.doubleClick(210,101)
+            job_no = copy_clipboard()
             file_routing()
-            
+
+            current_date = time.strftime('%Y-%m-%d, %Hh %Mm %Ss', time.localtime())
+
+            with open('{}.csv'.format(current_date), 'w', newline='') as csv_file:
+                fieldnames = ['+/-','None in stock','Item','Part Number','Amount']
+                csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+
+                csv_writer.writeheader()
+
+                for write in range(0,max_range):
+
+                    item_writer = item_list[write]
+                    amount_writer = amount_list[write]
+                    part_writer = part_list[write]
+                    red_x_writer = red_x_list[write]
+                    
+                    csv_writer.writerow({'+/-': wip, 'None in stock': red_x_writer, 'Item': item_writer, 'Part Number': part_writer, 'Amount': amount_writer})
+
+
+            os.chdir(r"D:\MIsys Data")
+
+            with open('Master.csv', 'a', newline='') as csv_file:
+                fieldnames = ['Time','Job number','+/-','None in stock','Item','Part Number','Amount']
+                csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+
+                #csv_writer.writeheader()
+
+                for write in range(0,max_range):
+
+                    item_writer = item_list[write]
+                    amount_writer = amount_list[write]
+                    part_writer = part_list[write]
+                    red_x_writer = red_x_list[write]
+                    job_writer = job_no
+                    transfer_time_writer = transfer_time_list[write]
+                    
+                    csv_writer.writerow({'Time': transfer_time_writer, 'Job number': job_writer, '+/-': wip, 'None in stock': red_x_writer, 'Item': item_writer, 'Part Number': part_writer, 'Amount': amount_writer})
+
+
+            os.chdir(r"C:\Users\jlee.NTPV\Documents\GitHub\material_transfer")
+
             end_transfer = time.time() - start_transfer
             print('\nTransfer time: ' + str(round(end_transfer, 2)))
             if '1' in skip_me:

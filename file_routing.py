@@ -43,13 +43,6 @@ def file_routing():
 
     os.chdir(current_month)
 
-    os_list = os.listdir('.')
-
-    if current_date not in os_list:
-        os.mkdir(r"D:\MIsys Data\{}\{}\{}\{}".format(job,current_year,current_month,current_date))
-
-    os.chdir(current_date)
-
     print("\n" + os.getcwd())
 
-    os.chdir(r"D:\MIsys Data")
+    #os.chdir(r"D:\MIsys Data")
