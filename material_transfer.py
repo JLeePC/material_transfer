@@ -36,7 +36,6 @@ print('Ctrl_c to quit.')
 
 try:
     while True:
-        total_start = time.time()
         pyautogui.PAUSE = 0.1
         # Go to next job
         if ask_for_next_job is True:
@@ -83,6 +82,8 @@ try:
                     job = True
                     break
                 time.sleep(0.25)
+                
+        total_start = time.time()
         
         time.sleep(1)
         released_button = pyautogui.locateOnScreen('released.png')
@@ -166,8 +167,10 @@ try:
                     labor_lines = True
                 else:
                     while down_loop:
+                        pyautogui.PAUSE = 0.03
                         im1 = pyautogui.screenshot()
-                        pyautogui.typewrite(['down'])
+                        for i in range(10):
+                            pyautogui.typewrite(['down'])
                         im2 = pyautogui.screenshot()
                         if im1 == im2:
                             down_loop = False
@@ -331,13 +334,15 @@ try:
                         item_list.pop(length)
                         amount_list.pop(length)
                         continue
+                    if '+' in str(item_input) and len(item_list) == 0:
+                        raise EmptyInput
                     if '+' in str(item_input):
                         stop_loop = True
                         break
                     if len(item_input) == 0:
                         raise EmptyInput
                 except EmptyInput:
-                    print("Input is empty.")
+                    print("Input is empty.\n")
                     continue
                 except ValueError:
                     continue
@@ -346,7 +351,7 @@ try:
                     if len(amount_input) == 0:
                         raise EmptyInput
                 except EmptyInput:
-                    print("Input is empty.")
+                    print("Input is empty.\n")
                     continue
                 
                 try:

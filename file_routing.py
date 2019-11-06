@@ -16,7 +16,7 @@ def file_routing():
 
     os_list = os.listdir('.')
 
-    current_date = time.strftime('%Y-%m-%d', time.localtime())
+    current_date = time.strftime('%Y-%m-%d, %Hh %Mm %Ss', time.localtime())
 
     current_year = time.strftime('%Y', time.localtime())
 
