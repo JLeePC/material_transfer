@@ -312,6 +312,8 @@ try:
             # type stop to move on
             item_list = []
             amount_list = []
+            heat_list = []
+            last_heat_number = ''
             #job_range = []
             stop_loop = False
             while not stop_loop:
@@ -341,13 +343,17 @@ try:
                 except EmptyInput:
                     print("Input is empty.\n")
                     continue
+
+                heat_number = input("Please enter the heat number: ")
+
+                if '+' in heat_number:
+                    heat_number = last_heat_number
+
+                item_list.append(int(item_input))
+                amount_list.append(float(amount_input))
+                heat_list.append(str(heat_number.upper()))
+                last_heat_number = heat_number
                 
-                try:
-                    item_list.append(int(item_input))
-                    amount_list.append(float(amount_input))
-                except ValueError:
-                    print("Please enter a valid number or + to quit")
-                    continue
             if button_location is not None:
                 pyautogui.PAUSE = 0.1
                 pyautogui.doubleClick(892,250)
@@ -422,6 +428,7 @@ try:
                 for number_of_down in range(line_1):
                     pyautogui.typewrite(['down'])
                 # material change
+                time.sleep(0.1)
                 part_no = copy_clipboard()
                 part_list.append(str(part_no))
 
@@ -523,11 +530,11 @@ try:
                 
                 if red_x is not None:
                     print('Red_x')
-                    red_x_list.append('X')
+                    red_x_list.append('None')
 
                 else:
                     print('None')
-                    red_x_list.append('-')
+                    red_x_list.append('In stock')
             # close transfer window
             pyautogui.click(1004, 776)
 
@@ -541,7 +548,8 @@ try:
             current_date = time.strftime('%Y-%m-%d, %Hh %Mm %Ss', time.localtime())
 
             with open('{}.csv'.format(current_date), 'w', newline='') as csv_file:
-                fieldnames = ['+/-','None in stock','Item','Part Number','Amount']
+                fieldnames = ['Time','Job number','+/-','None in stock','Item','Part Number',
+                              'Heat number','Amount']
                 csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
 
                 csv_writer.writeheader()
@@ -552,14 +560,21 @@ try:
                     amount_writer = amount_list[write]
                     part_writer = part_list[write]
                     red_x_writer = red_x_list[write]
+                    job_writer = job_no
+                    transfer_time_writer = transfer_time_list[write]
+                    heat_number_writer = heat_list[write]
                     
-                    csv_writer.writerow({'+/-': wip, 'None in stock': red_x_writer, 'Item': item_writer, 'Part Number': part_writer, 'Amount': amount_writer})
+                    csv_writer.writerow({'Time': transfer_time_writer, 'Job number': job_writer, '+/-': wip,
+                                         'None in stock': red_x_writer, 'Item': item_writer,
+                                         'Part Number': part_writer,'Heat number': heat_number_writer,
+                                         'Amount': amount_writer})
 
 
             os.chdir(r"D:\MIsys Data")
 
             with open('Master.csv', 'a', newline='') as csv_file:
-                fieldnames = ['Time','Job number','+/-','None in stock','Item','Part Number','Amount']
+                fieldnames = ['Time','Job number','+/-','None in stock','Item','Part Number',
+                              'Heat number','Amount']
                 csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
 
                 #csv_writer.writeheader()
@@ -572,8 +587,12 @@ try:
                     red_x_writer = red_x_list[write]
                     job_writer = job_no
                     transfer_time_writer = transfer_time_list[write]
+                    heat_number_writer = heat_list[write]
                     
-                    csv_writer.writerow({'Time': transfer_time_writer, 'Job number': job_writer, '+/-': wip, 'None in stock': red_x_writer, 'Item': item_writer, 'Part Number': part_writer, 'Amount': amount_writer})
+                    csv_writer.writerow({'Time': transfer_time_writer, 'Job number': job_writer, '+/-': wip,
+                                         'None in stock': red_x_writer, 'Item': item_writer,
+                                         'Part Number': part_writer,'Heat number': heat_number_writer,
+                                         'Amount': amount_writer})
 
 
             os.chdir(r"C:\Users\jlee.NTPV\Documents\GitHub\material_transfer")
