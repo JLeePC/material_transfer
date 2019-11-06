@@ -19,15 +19,20 @@ import pyautogui
 import pygetwindow as gw
 import time
 import pyperclip
+from file_routing import file_routing
+from copy_clipboard import copy_clipboard
+
+class EmptyInput(Exception):
+    pass
 
 ask_for_next_job = False
 pyautogui.PAUSE = 0.1
 print('Ctrl_c to quit.')
 
-def copy_clipboard():
-    pyautogui.hotkey('ctrl', 'c')
-    time.sleep(.01)
-    return pyperclip.paste()
+#def copy_clipboard():
+    #pyautogui.hotkey('ctrl', 'c')
+    #time.sleep(.01)
+    #return pyperclip.paste()
 
 try:
     while True:
@@ -321,15 +326,32 @@ try:
             while not stop_loop:
                 item_input = input("Please enter the item number (enter + to quit): ")
                 try:
+                    if '-' in item_input:
+                        length = len(item_list) - 1
+                        item_list.pop(length)
+                        amount_list.pop(length)
+                        continue
                     if '+' in str(item_input):
                         stop_loop = True
                         break
+                    if len(item_input) == 0:
+                        raise EmptyInput
+                except EmptyInput:
+                    print("Input is empty.")
+                    continue
                 except ValueError:
                     continue
-                amount_input = input("Please enter the amount: ")    
+                amount_input = input("Please enter the amount: ")
+                try:
+                    if len(amount_input) == 0:
+                        raise EmptyInput
+                except EmptyInput:
+                    print("Input is empty.")
+                    continue
+                
                 try:
                     item_list.append(int(item_input))
-                    amount_list.append(str(amount_input))
+                    amount_list.append(float(amount_input))
                 except ValueError:
                     print("Please enter a valid number or + to quit")
                     continue
@@ -453,6 +475,13 @@ try:
                 print('Item ' + str(item_transfer) + ' Done.')
             # close transfer window
             pyautogui.click(1004, 776)
+
+            while len(gw.getWindowsWithTitle('Start Manufacturing Order Detail')) != 0:
+                time.sleep(0.5)
+
+            pyautogui.doubleClick(210,101)
+            file_routing()
+            
             end_transfer = time.time() - start_transfer
             print('\nTransfer time: ' + str(round(end_transfer, 2)))
             if '1' in skip_me:
@@ -465,8 +494,6 @@ try:
                 minutes = minutes + 1
             
             print('\nTotal Time: ' + str(minutes) + ' Minutes ' + str(round(total_time, 2)) + ' Seconds')
-            while len(gw.getWindowsWithTitle('Start Manufacturing Order Detail')) != 0:
-                    time.sleep(0.5)
             print('\nCompleted Loop.')
             print('----------------------------------------')
 
