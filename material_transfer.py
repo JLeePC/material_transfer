@@ -17,11 +17,6 @@ ask_for_next_job = False
 pyautogui.PAUSE = 0.1
 print('Ctrl_c to quit.')
 
-#def copy_clipboard():
-    #pyautogui.hotkey('ctrl', 'c')
-    #time.sleep(.01)
-    #return pyperclip.paste()
-
 try:
     while True:
         pyautogui.PAUSE = 0.1
@@ -49,7 +44,6 @@ try:
             time.sleep(1)
             waiting = True
             while waiting:
-                #print('Searching for .png')
                 released_by = pyautogui.locateOnScreen('released_by.png', region=(370,250,130,50))
                 if released_by is not None:
                     waiting = False
@@ -81,7 +75,6 @@ try:
 
             pyautogui.click(150,150)
             print('\nLooking for side bar.')
-            #time.sleep(1)
             button_location = pyautogui.locateOnScreen('up_arrow.png', region=(875,207,29,42))
             time.sleep(1)
             
@@ -103,20 +96,27 @@ try:
                 if labor1 or labor2 is not None:
                     page = 1
                     labor_lines = True
-                    print(labor_lines)
+                    print('There is LABOR in this job.')
                 else:
                     page = 2
                     labor_loop = True
                     while labor_loop:
                         pyautogui.click(891,961, clicks=35, interval=0.05) # down arrow
                         time.sleep(0.25)
-                        labor1 = pyautogui.locateOnScreen('labor1.png')
-                        labor2 = pyautogui.locateOnScreen('labor2.png')
+                        labor1 = pyautogui.locateOnScreen('labor1.png', region=(110,232,134,737))
+                        labor2 = pyautogui.locateOnScreen('labor2.png', region=(110,232,134,737))
+                        bottom_arrow = pyautogui.locateOnScreen('bottom_arrow.png', region=(880,940,30,40))
                         if labor1 or labor2 is not None:
                             labor_lines = True
                             labor_loop = False
+                            print('There is LABOR in this job.')
                             break
-                            
+                        if bottom_arrow is not None:
+                            labor_lines = False
+                            labor_loop = True
+                            print('There is no LABOR in this job.')
+                            break
+
             else:
                 print('\nLooking for LABOR.')
                 labor1 = pyautogui.locateOnScreen('labor1.png')
@@ -133,7 +133,6 @@ try:
             labor_no = str('LABOR')
             
             if button_location is not None and labor_lines is True:
-                # get to the bottom if the page is more than 1
                 pyautogui.click(890,948, clicks=4, interval=0.05)
                 pyautogui.click(890,964)
                 pyautogui.doubleClick(219,242)
@@ -177,7 +176,6 @@ try:
             if labor_lines:
                 print('\nLooking for LABOR lines.')
                 pyautogui.doubleClick(219,242)
-                #labor_no = str('LABOR')
                 labor = False
                 total_lines = 0
                 while labor is False:
@@ -193,7 +191,7 @@ try:
                     total_lines = total_lines + 1
                 first_labor = current_part_no1
                 print('First LABOR line is: ' + str(first_labor))
-                # go down till you meet that same labor line to see total amount of lines
+
                 if button_location is not None:
                     pyautogui.doubleClick(892,250)
                     pyautogui.doubleClick(892,250)
@@ -213,7 +211,7 @@ try:
                                 time.sleep(0.03)
                             time.sleep(1)
                             print('Down complete.')
-                    #input('Enter')
+
                     pyautogui.PAUSE = 0.1
                     current_part_no = copy_clipboard()
                     time.sleep(0.1)
@@ -420,6 +418,8 @@ try:
                     time.sleep(0.05)
                 # material change
                 part_no = copy_clipboard()
+                time.sleep(0.1)
+                print(part_no)
                 part_list.append(str(part_no))
                 
             else:
@@ -430,6 +430,8 @@ try:
                 # material change
                 time.sleep(0.1)
                 part_no = copy_clipboard()
+                time.sleep(0.1)
+                print(part_no)
                 part_list.append(str(part_no))
 
                 last_line = item_change_1
@@ -439,18 +441,16 @@ try:
                     amount_change = amount_list[change]
                     # use the current value to see how many to 'down'
                     line = int(item_change) - last_line
-                    #print('last line ' + str(last_line))
-                    #print('line ' + str(line))
                     if line > 0:
                         for number_of_down in range(line):
-                            #print('down')
                             pyautogui.typewrite(['down'])
                     elif line < 0:
                         for number_of_up in range(abs(line)):
-                            #print('up')
                             pyautogui.typewrite(['up'])
                     # material change
                     part_no = copy_clipboard()
+                    time.sleep(0.1)
+                    print(part_no)
                     part_list.append(str(part_no))
                     last_line = item_change
                             
@@ -490,8 +490,6 @@ try:
                 item_transfer = item_list[transfer] + line_skip
                 amount_transfer = amount_list[transfer]
                 
-                #if item_transfer in num_to_skip:
-                    #continue
                 if float(amount_transfer) == 0:
                     continue
                 
@@ -508,7 +506,7 @@ try:
                 # click transfer
                 pyautogui.click(621,779)
                 
-                transfer_time = time.strftime('%Y-%m-%d, %Hh %Mm %Ss', time.localtime())
+                transfer_time = time.strftime('%Y-%m-%d, %H:%M:%S', time.localtime())
                 
                 time.sleep(1)
                 # ok window
@@ -530,10 +528,10 @@ try:
                 
                 if red_x is not None:
                     print('Red_x')
-                    red_x_list.append('None')
+                    red_x_list.append('None in stock')
 
                 else:
-                    print('None')
+                    print('In stock')
                     red_x_list.append('In stock')
             # close transfer window
             pyautogui.click(1004, 776)
@@ -548,8 +546,7 @@ try:
             current_date = time.strftime('%Y-%m-%d, %Hh %Mm %Ss', time.localtime())
 
             with open('{}.csv'.format(current_date), 'w', newline='') as csv_file:
-                fieldnames = ['Time','Job number','+/-','None in stock','Item','Part Number',
-                              'Heat number','Amount']
+                fieldnames = ['Time','Job number','+/-','Item','Part Number','Heat number','Amount','None in stock']
                 csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
 
                 csv_writer.writeheader()
@@ -565,16 +562,15 @@ try:
                     heat_number_writer = heat_list[write]
                     
                     csv_writer.writerow({'Time': transfer_time_writer, 'Job number': job_writer, '+/-': wip,
-                                         'None in stock': red_x_writer, 'Item': item_writer,
-                                         'Part Number': part_writer,'Heat number': heat_number_writer,
-                                         'Amount': amount_writer})
+                                         'Item': item_writer, 'Part Number': part_writer,
+                                         'Heat number': heat_number_writer, 'Amount': amount_writer,
+                                         'None in stock': red_x_writer})
 
 
             os.chdir(r"D:\MIsys Data")
 
             with open('Master.csv', 'a', newline='') as csv_file:
-                fieldnames = ['Time','Job number','+/-','None in stock','Item','Part Number',
-                              'Heat number','Amount']
+                fieldnames = ['Time','Job number','+/-','Item','Part Number','Heat number','Amount','None in stock']
                 csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
 
                 #csv_writer.writeheader()
@@ -590,10 +586,9 @@ try:
                     heat_number_writer = heat_list[write]
                     
                     csv_writer.writerow({'Time': transfer_time_writer, 'Job number': job_writer, '+/-': wip,
-                                         'None in stock': red_x_writer, 'Item': item_writer,
-                                         'Part Number': part_writer,'Heat number': heat_number_writer,
-                                         'Amount': amount_writer})
-
+                                         'Item': item_writer, 'Part Number': part_writer,
+                                         'Heat number': heat_number_writer, 'Amount': amount_writer,
+                                         'None in stock': red_x_writer})
 
             os.chdir(r"C:\Users\jlee.NTPV\Documents\GitHub\material_transfer")
 
