@@ -4,15 +4,13 @@ import pyautogui
 import pyperclip
 from copy_clipboard import copy_clipboard
 
-#file_routing()
-
 def file_routing():
 
     job = copy_clipboard()
 
     job = job.upper()
 
-    os.chdir(r"D:\MIsys Data")
+    os.chdir(r"D:\MIsys Data\Jobs")
 
     os_list = os.listdir('.')
 
@@ -25,24 +23,22 @@ def file_routing():
     os_list = os.listdir('.')
 
     if job not in os_list:
-        os.mkdir(r"D:\MIsys Data\{}".format(job))
+        os.mkdir(r"D:\MIsys Data\Jobs\{}".format(job))
 
     os.chdir(job)
 
     os_list = os.listdir('.')
 
     if current_year not in os_list:
-        os.mkdir(r"D:\MIsys Data\{}\{}".format(job,current_year))
+        os.mkdir(r"D:\MIsys Data\Jobs\{}\{}".format(job,current_year))
 
     os.chdir(current_year)
 
     os_list = os.listdir('.')
 
     if current_month not in os_list:
-        os.mkdir(r"D:\MIsys Data\{}\{}\{}".format(job,current_year,current_month))
+        os.mkdir(r"D:\MIsys Data\Jobs\{}\{}\{}".format(job,current_year,current_month))
 
     os.chdir(current_month)
 
     print("\n" + os.getcwd())
-
-    #os.chdir(r"D:\MIsys Data")

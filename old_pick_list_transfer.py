@@ -244,84 +244,23 @@ try:
                     pyautogui.typewrite(['down'])
                     total_down = False
 
-            pyautogui.click(1423,15)
+            pyautogui.doubleClick(219,242)
+            pwht = copy_clipboard()
+            time.sleep(0.1)
+            if 'PWHT' in pwht:
+                pyautogui.click(919,291)
 
-            add_part = input('\nAre there part numbers to add?: ')
-            
-            if '1' in str(add_part):
+            if button_location is not None:
                 pyautogui.PAUSE = 0.1
-                add_part = True
-                up_count = 0
-                while add_part:
-                    new_part = input('What is the new part number?: ')
-                    pyautogui.click(920,312) # new line
-                    pyautogui.typewrite(str(new_part))
-                    pyautogui.typewrite(['tab'])
-                    pyautogui.hotkey('shift','tab')
-                    current_part_no9 = copy_clipboard()
-                    go_up = True
-                    while go_up:
-                        pyautogui.typewrite(['up'])
-                        current_part_no9 = copy_clipboard()
-                        if 'LABOR' not in current_part_no9:
-                            go_up = False
-                            break
-                        up_count = up_count + 1
-                    for down in range(up_count+1):
-                        pyautogui.typewrite(['down'])
-                    pyautogui.click(922,247,clicks=up_count,interval=0.025)
-                    pyautogui.click(1423,15)
-                    add_more = input('Are there more parts to add?: ')
-                    if '0' in str(add_more):
-                        add_part = False
-                        break
-            
-            change_part = input('Are there part numbers that need to change?: ')
-            
-            if '1' in str(change_part):
-                pyautogui.PAUSE = 0.1
-                change_part = True
-                while change_part:
-                    pyautogui.click(1423,15)
-                    change_line = input('Which line needs to change?: ').zfill(2)
-                    new_part = input('What is the new part number?: ')
-                    if '01' in change_line:
-                        pyautogui.doubleClick(219,242)
-                        pyautogui.click(919,289) # bottom
-                        time.sleep(0.5)
-                        pyautogui.typewrite(['tab'])
-                        pyautogui.typewrite('0')
-                        time.sleep(0.5)
-                        pyautogui.click(920,312) # new line
-                        pyautogui.typewrite(str(new_part))
-                        pyautogui.click(920,227) # top
-                    else:
-                        pyautogui.doubleClick(219,242)
-                        change_line_range = int(change_line) - 1
-                        for number_of_down in range(change_line_range):
-                            pyautogui.PAUSE = 0.05
-                            pyautogui.typewrite(['down'])
-                        pyautogui.click(919,289) # bottom
-                        time.sleep(0.5)
-                        pyautogui.typewrite(['tab'])
-                        pyautogui.typewrite('0')
-                        time.sleep(0.5)
-                        pyautogui.click(920,312) # new line
-                        pyautogui.typewrite(str(new_part))
-                        pyautogui.click(920,227) # top
-                        for number_of_down in range(change_line_range):
-                            pyautogui.click(920,269)
-                    pyautogui.click(1423,15)
-                    change_more = input('Are there more lines to change?: ')
-                    if '0' in change_more:
-                        change_part = False
-                        break
-            
-            
+                pyautogui.doubleClick(892,250)
+                pyautogui.doubleClick(892,250)
+                pyautogui.click(890,227)
+                pyautogui.PAUSE = 0.05
+
             pyautogui.PAUSE = 0.05
+            pyautogui.click(1423,15)
             line_skip = int(input('How many lines need to be skipped?: '))
             print('\nPress Ctrl-C to quit.')
-            pyautogui.click(1423,15)
             # start loop to get the line and amount information
             # type stop to move on
             item_list = []
@@ -350,21 +289,15 @@ try:
                     continue
                 except ValueError:
                     continue
-                amount_input = input("Please enter the amount: ")
-                try:
-                    if len(amount_input) == 0:
-                        raise EmptyInput
-                except EmptyInput:
-                    print("Input is empty.\n")
-                    continue
 
                 heat_number = input("Please enter the heat number: ")
 
                 if '+' in heat_number:
                     heat_number = last_heat_number
+                if len(heat_number) == 0:
+                    heat_number = 'None'
 
                 item_list.append(int(item_input))
-                amount_list.append(float(amount_input))
                 heat_list.append(str(heat_number.upper()))
                 last_heat_number = heat_number
                 
@@ -376,56 +309,10 @@ try:
                 pyautogui.PAUSE = 0.05
             # ask if there are any lines to change
             # if yes then start the change loop
-            max_range = len(item_list)
-            pyautogui.click(1423,15)
-            skip_me = input("Do you have numbers to change? (1/0): ")
-            pyautogui.doubleClick(280, 240)
-            if '1' in str(skip_me):
-                start_change = time.time()
-                if max_range ==1:
-                    item_change = item_list[0]
-                    amount_change = amount_list[0]
-                    # use the current value to see how many to 'down'
-                    line = int(line_skip) + int(item_change) -1
-                    for number_of_down in range(line):
-                        pyautogui.typewrite(['down'])
-                        time.sleep(0.05)
-                    # material change
-                    pyautogui.typewrite(str(amount_change))        
-                    
-                else:
-                    item_change_1 = item_list[0]
-                    amount_change_1 = amount_list[0]
-                    line_1 = int(line_skip) + int(item_change_1) -1
-                    for number_of_down in range(line_1):
-                        pyautogui.typewrite(['down'])
-                    # material change
-                    pyautogui.typewrite(str(amount_change_1))
-
-                    last_line = item_change_1
-                    
-                    for change in range(1,max_range):
-                        item_change = item_list[change]
-                        amount_change = amount_list[change]
-                        # use the current value to see how many to 'down'
-                        line = int(item_change) - last_line
-                        #print('last line ' + str(last_line))
-                        #print('line ' + str(line))
-                        if line > 0:
-                            for number_of_down in range(line):
-                                #print('down')
-                                pyautogui.typewrite(['down'])
-                        elif line < 0:
-                            for number_of_up in range(abs(line)):
-                                #print('up')
-                                pyautogui.typewrite(['up'])
-                        # material change
-                        pyautogui.typewrite(str(amount_change))
-                        last_line = item_change
-
-            part_list = []
-            pyautogui.doubleClick(219,242)
             pyautogui.PAUSE = 0.1
+            max_range = len(item_list)
+            pyautogui.doubleClick(219,242)
+            part_list = []
             if max_range ==1:
                 item_change = item_list[0]
                 # use the current value to see how many to 'down'
@@ -445,9 +332,9 @@ try:
                 for number_of_down in range(line_1):
                     pyautogui.typewrite(['down'])
                 # material change
-                time.sleep(0.1)
+                time.sleep(0.2)
                 part_no = copy_clipboard()
-                time.sleep(0.1)
+                time.sleep(0.2)
                 print(part_no)
                 part_list.append(str(part_no))
 
@@ -455,7 +342,6 @@ try:
                 
                 for change in range(1,max_range):
                     item_change = item_list[change]
-                    amount_change = amount_list[change]
                     # use the current value to see how many to 'down'
                     line = int(item_change) - last_line
                     if line > 0:
@@ -465,10 +351,66 @@ try:
                         for number_of_up in range(abs(line)):
                             pyautogui.typewrite(['up'])
                     # material change
+                    time.sleep(0.2)
                     part_no = copy_clipboard()
-                    time.sleep(0.1)
+                    time.sleep(0.25)
                     print(part_no)
                     part_list.append(str(part_no))
+                    last_line = item_change
+
+            if button_location is not None:
+                pyautogui.PAUSE = 0.1
+                pyautogui.doubleClick(892,250)
+                pyautogui.doubleClick(892,250)
+                pyautogui.click(890,227)
+                pyautogui.PAUSE = 0.05
+
+            max_range = len(item_list)
+            pyautogui.doubleClick(279,245)
+            amount_list = []
+            if max_range ==1:
+                item_change = item_list[0]
+                # use the current value to see how many to 'down'
+                line = int(line_skip) + int(item_change) -1
+                for number_of_down in range(line):
+                    pyautogui.typewrite(['down'])
+                    time.sleep(0.05)
+                # material change
+                part_no = copy_clipboard()
+                time.sleep(0.25)
+                print(part_no)
+                amount_list.append(float(part_no))
+                
+            else:
+                item_change_2 = item_list[0]
+                line_2 = int(line_skip) + int(item_change_2) -1
+                for number_of_down in range(line_2):
+                    pyautogui.typewrite(['down'])
+                # material change
+                time.sleep(0.2)
+                part_no = copy_clipboard()
+                time.sleep(0.2)
+                print(part_no)
+                amount_list.append(float(part_no))
+
+                last_line = item_change_2
+                
+                for change in range(1,max_range):
+                    item_change = item_list[change]
+                    # use the current value to see how many to 'down'
+                    line = int(item_change) - last_line
+                    if line > 0:
+                        for number_of_down in range(line):
+                            pyautogui.typewrite(['down'])
+                    elif line < 0:
+                        for number_of_up in range(abs(line)):
+                            pyautogui.typewrite(['up'])
+                    # material change
+                    time.sleep(0.2)
+                    part_no = copy_clipboard()
+                    time.sleep(0.25)
+                    print(part_no)
+                    amount_list.append(float(part_no))
                     last_line = item_change
                             
             # if amount to skip is >0 then go down past labor
@@ -477,81 +419,29 @@ try:
             if len(item_list) == 0:
                 for number_of_down_labor in range(line_skip):
                     pyautogui.typewrite(['down'])
-            
-            pyautogui.click(1423,15)
-            if '1' in str(skip_me):
-                end_change = time.time()-start_change
-                print('\nChange value time: ' + str(round(end_change, 3)) + ' Seconds')
-                
-            # click save
-            pyautogui.click(75,65)
-            time.sleep(0.5)
-            # open transfer window
-            pyautogui.click(550,60)
-            okWindow = gw.getWindowsWithTitle('Start Manufacturing Order Detail')
-            while len(gw.getWindowsWithTitle('Start Manufacturing Order Detail')) == 0:
-                time.sleep(0.25)
-            time.sleep(0.25)
-            pyautogui.click(1423,15)
-            print('\nCtrl-C to quit')
-            wip = input('Which direction do you want to transfer? (+ = to WIP/- = to Stock): ')
+            wip = '+'
             pyautogui.PAUSE = 0.1
-            
-            if '-' in wip:
-                pyautogui.click(831,682)
-            start_transfer = time.time()
         # material transfer loop
             red_x_list = []
             transfer_time_list = []
+            start_transfer = time.time()
             for transfer in range(0,max_range):
                 item_transfer = item_list[transfer] + line_skip
                 amount_transfer = amount_list[transfer]
                 
-                if float(amount_transfer) == 0:
-                    continue
-                
-                # activate window
-                pyautogui.click(827,252)
-                # double click search bar
-                pyautogui.doubleClick(590,453)
-                # input that line into the search bar
-                pyautogui.typewrite(str(item_transfer))
-                # double click the input bar
-                pyautogui.doubleClick(615,611)
-                # input desired amount into the transfer bar
-                pyautogui.typewrite(str(amount_transfer))
-                # click transfer
-                pyautogui.click(621,779)
-                
                 transfer_time = time.strftime('%Y-%m-%d, %H:%M:%S', time.localtime())
                 
-                time.sleep(1)
-                # ok window
-                okWindow = gw.getWindowsWithTitle('Start Manufacturing Order Detail')
-                while len(gw.getWindowsWithTitle('Start Manufacturing Order Detail')) == 1:
-                    time.sleep(0.25)
-                    # print("Current value of getwindows: {}".format(len(gw.getWindowsWithTitle('Start Manufacturing Order Detail'))))
-                time.sleep(0.25)
-                
-                red_x = pyautogui.locateOnScreen('red_x.png', region=(650,450,100,100))
+                red_x = None
 
                 time.sleep(0.25)
 
                 transfer_time_list.append(transfer_time)
                 
-                pyautogui.click(1034,597)
-                pyautogui.click(868,568)
-                print('Item ' + str(item_transfer) + ' Done.')
-                
                 if red_x is not None:
-                    print('Red_x')
                     red_x_list.append('None in stock')
 
                 else:
-                    print('In stock')
                     red_x_list.append('In stock')
-            # close transfer window
-            pyautogui.click(1004, 776)
 
             while len(gw.getWindowsWithTitle('Start Manufacturing Order Detail')) != 0:
                 time.sleep(0.5)
@@ -563,7 +453,7 @@ try:
             current_date = time.strftime('%Y-%m-%d, %Hh %Mm %Ss', time.localtime())
 
             with open('{}.csv'.format(current_date), 'w', newline='') as csv_file:
-                fieldnames = ['Time','Job number','+/-','Item','Part Number','Heat number','Amount','Stock']
+                fieldnames = ['Time','Job number','+/-','Item','Part Number','Heat number','Amount']
                 csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
 
                 csv_writer.writeheader()
@@ -573,21 +463,19 @@ try:
                     item_writer = item_list[write]
                     amount_writer = amount_list[write]
                     part_writer = part_list[write]
-                    red_x_writer = red_x_list[write]
                     job_writer = job_no
                     transfer_time_writer = transfer_time_list[write]
                     heat_number_writer = heat_list[write]
                     
                     csv_writer.writerow({'Time': transfer_time_writer, 'Job number': job_writer, '+/-': wip,
                                          'Item': item_writer, 'Part Number': part_writer,
-                                         'Heat number': heat_number_writer, 'Amount': amount_writer,
-                                         'Stock': red_x_writer})
+                                         'Heat number': heat_number_writer, 'Amount': amount_writer})
 
 
             os.chdir(r"D:\MIsys Data")
 
-            with open('Master.csv', 'a', newline='') as csv_file:
-                fieldnames = ['Time','Job number','+/-','Item','Part Number','Heat number','Amount','Stock']
+            with open('Old_Master.csv', 'a', newline='') as csv_file:
+                fieldnames = ['Time','Job number','+/-','Item','Part Number','Heat number','Amount']
                 csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
 
                 #csv_writer.writeheader()
@@ -597,23 +485,18 @@ try:
                     item_writer = item_list[write]
                     amount_writer = amount_list[write]
                     part_writer = part_list[write]
-                    red_x_writer = red_x_list[write]
                     job_writer = job_no
                     transfer_time_writer = transfer_time_list[write]
                     heat_number_writer = heat_list[write]
                     
                     csv_writer.writerow({'Time': transfer_time_writer, 'Job number': job_writer, '+/-': wip,
                                          'Item': item_writer, 'Part Number': part_writer,
-                                         'Heat number': heat_number_writer, 'Amount': amount_writer,
-                                         'Stock': red_x_writer})
+                                         'Heat number': heat_number_writer, 'Amount': amount_writer})
 
             os.chdir(r"C:\Users\jlee.NTPV\Documents\GitHub\material_transfer")
 
             end_transfer = time.time() - start_transfer
             print('\nTransfer time: ' + str(round(end_transfer, 2)))
-            if '1' in skip_me:
-                elapsed_time = round(end_transfer + end_change, 2)
-                print('\nElapsed automation time: ' + str(elapsed_time) + ' Seconds')
             total_time = time.time() - total_start
             minutes = 0
             while total_time >= 60:
