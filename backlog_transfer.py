@@ -514,4 +514,3 @@ try:
 # Have a kill switch
 except KeyboardInterrupt:
     print('\nDone')
-
