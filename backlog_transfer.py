@@ -297,7 +297,7 @@ try:
                 if len(heat_number) == 0:
                     heat_number = 'None'
 
-                item_list.append(int(item_input))
+                item_list.append(str(item_input).zfill(2))
                 heat_list.append(str(heat_number.upper()))
                 last_heat_number = heat_number
                 
@@ -426,7 +426,7 @@ try:
             transfer_time_list = []
             start_transfer = time.time()
             for transfer in range(0,max_range):
-                item_transfer = item_list[transfer] + line_skip
+                item_transfer = int(item_list[transfer]) + line_skip
                 amount_transfer = amount_list[transfer]
                 
                 transfer_time = time.strftime('%Y-%m-%d, %H:%M:%S', time.localtime())
@@ -474,7 +474,7 @@ try:
 
             os.chdir(r"D:\MIsys Data")
 
-            with open('Old_Master.csv', 'a', newline='') as csv_file:
+            with open('Backlog_Master.csv', 'a', newline='') as csv_file:
                 fieldnames = ['Time','Job number','+/-','Item','Part Number','Heat number','Amount']
                 csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
 
