@@ -72,10 +72,11 @@ try:
         total_start = time.time()
         
         time.sleep(1)
-        released_button = pyautogui.locateOnScreen('released.png')
+        released_button = pyautogui.locateOnScreen('released.png', region=(614,86,170,29))
+        on_hold_button = pyautogui.locateOnScreen('on_hold.png', region=(712,115,91,24))
         time.sleep(0.25)
 
-        if released_button is not None:
+        if released_button is not None and on_hold_button is None:
 
             pyautogui.click(150,150)
             print('\nLooking for side bar.')
@@ -409,9 +410,9 @@ try:
                         pyautogui.click(919,289) # bottom
                         time.sleep(0.5)
                         pyautogui.typewrite(['tab'])
-                        time.sleep(0.1)
+                        time.sleep(0.25)
                         current_part_no = copy_clipboard()
-                        time.sleep(0.1)
+                        time.sleep(0.25)
                         pyautogui.typewrite('0')
                         time.sleep(0.5)
                         pyautogui.hotkey('shift','tab')
@@ -472,6 +473,7 @@ try:
                         pyautogui.typewrite(current_part_no)
                         time.sleep(0.5)
                         pyautogui.click(920,227) # top
+                        time.sleep(0.25)
                         for number_of_down in range(change_line_range):
                             pyautogui.click(920,269)
                     pyautogui.click(1423,15)
@@ -664,21 +666,21 @@ try:
                 #wip
                 wip_text_im = ImageGrab.grab(bbox =(251,arrow_top,311,arrow_bottom))
                 wip_size = tuple(4*x for x in wip_text_im.size)
-                stock_text_im = stock_text_im.resize(wip_size, Image.ANTIALIAS)
+                wip_text_im = wip_text_im.resize(wip_size, Image.ANTIALIAS)
                 wip_text_im_gs = wip_text_im.convert('LA')
                 wip_text_string = pytesseract.image_to_string(wip_text_im_gs, config=custom_oem_psm_config)
                 wip_text_list.append(wip_text_string)
                 #released
                 released_text_im = ImageGrab.grab(bbox =(599,arrow_top,657,arrow_bottom))
                 released_size = tuple(4*x for x in released_text_im.size)
-                stock_text_im = stock_text_im.resize(released_size, Image.ANTIALIAS)
+                released_text_im = released_text_im.resize(released_size, Image.ANTIALIAS)
                 released_text_im_gs = released_text_im.convert('LA')
                 released_text_string = pytesseract.image_to_string(released_text_im_gs, config=custom_oem_psm_config)
                 released_text_list.append(released_text_string)
                 #on_order
                 on_order_text_im = ImageGrab.grab(bbox =(657,arrow_top,723,arrow_bottom))
                 on_order_size = tuple(4*x for x in on_order_text_im.size)
-                stock_text_im = stock_text_im.resize(on_order_size, Image.ANTIALIAS)
+                on_order_text_im = on_order_text_im.resize(on_order_size, Image.ANTIALIAS)
                 on_order_text_im_gs = on_order_text_im.convert('LA')
                 on_order_text_string = pytesseract.image_to_string(on_order_text_im_gs, config=custom_oem_psm_config)
                 on_order_text_list.append(on_order_text_string)
@@ -717,21 +719,21 @@ try:
                 #wip
                 wip_text_im = ImageGrab.grab(bbox =(251,arrow_top,311,arrow_bottom))
                 wip_size = tuple(4*x for x in wip_text_im.size)
-                stock_text_im = stock_text_im.resize(wip_size, Image.ANTIALIAS)
+                wip_text_im = wip_text_im.resize(wip_size, Image.ANTIALIAS)
                 wip_text_im_gs = wip_text_im.convert('LA')
                 wip_text_string = pytesseract.image_to_string(wip_text_im_gs, config=custom_oem_psm_config)
                 wip_text_list.append(wip_text_string)
                 #released
                 released_text_im = ImageGrab.grab(bbox =(599,arrow_top,657,arrow_bottom))
                 released_size = tuple(4*x for x in released_text_im.size)
-                stock_text_im = stock_text_im.resize(released_size, Image.ANTIALIAS)
+                released_text_im = released_text_im.resize(released_size, Image.ANTIALIAS)
                 released_text_im_gs = released_text_im.convert('LA')
                 released_text_string = pytesseract.image_to_string(released_text_im_gs, config=custom_oem_psm_config)
                 released_text_list.append(released_text_string)
                 #on_order
                 on_order_text_im = ImageGrab.grab(bbox =(657,arrow_top,723,arrow_bottom))
                 on_order_size = tuple(4*x for x in on_order_text_im.size)
-                stock_text_im = stock_text_im.resize(on_order_size, Image.ANTIALIAS)
+                on_order_text_im = on_order_text_im.resize(on_order_size, Image.ANTIALIAS)
                 on_order_text_im_gs = on_order_text_im.convert('LA')
                 on_order_text_string = pytesseract.image_to_string(on_order_text_im_gs, config=custom_oem_psm_config)
                 on_order_text_list.append(on_order_text_string)
@@ -776,21 +778,21 @@ try:
                     #wip
                     wip_text_im = ImageGrab.grab(bbox =(251,arrow_top,311,arrow_bottom))
                     wip_size = tuple(4*x for x in wip_text_im.size)
-                    stock_text_im = stock_text_im.resize(wip_size, Image.ANTIALIAS)
+                    wip_text_im = wip_text_im.resize(wip_size, Image.ANTIALIAS)
                     wip_text_im_gs = wip_text_im.convert('LA')
                     wip_text_string = pytesseract.image_to_string(wip_text_im_gs, config=custom_oem_psm_config)
                     wip_text_list.append(wip_text_string)
                     #released
                     released_text_im = ImageGrab.grab(bbox =(599,arrow_top,657,arrow_bottom))
                     released_size = tuple(4*x for x in released_text_im.size)
-                    stock_text_im = stock_text_im.resize(released_size, Image.ANTIALIAS)
+                    released_text_im = released_text_im.resize(released_size, Image.ANTIALIAS)
                     released_text_im_gs = released_text_im.convert('LA')
                     released_text_string = pytesseract.image_to_string(released_text_im_gs, config=custom_oem_psm_config)
                     released_text_list.append(released_text_string)
                     #on_order
                     on_order_text_im = ImageGrab.grab(bbox =(657,arrow_top,723,arrow_bottom))
                     on_order_size = tuple(4*x for x in on_order_text_im.size)
-                    stock_text_im = stock_text_im.resize(on_order_size, Image.ANTIALIAS)
+                    on_order_im = on_order_text_im.resize(on_order_size, Image.ANTIALIAS)
                     on_order_text_im_gs = on_order_text_im.convert('LA')
                     on_order_text_string = pytesseract.image_to_string(on_order_text_im_gs, config=custom_oem_psm_config)
                     on_order_text_list.append(on_order_text_string)
@@ -867,10 +869,10 @@ try:
                 transfer_time = time.strftime('%Y-%m-%d, %H:%M:%S', time.localtime())
                 transfer_time_list.append(transfer_time)
 
-                if len(stock) == 0:
+                if len(str(stock)) == 0:
                     stock = '0.000'
                     
-                elif float(stock) > 0:
+                if float(stock) > 0:
                     transfer_switch = True
                     
                 if transfer_switch:
@@ -906,10 +908,11 @@ try:
                     if red_x is not None:
                         print('Not enough in stock')
                         red_x_list.append('Not enough in stock')
+                        wip_after = float(wip_text_list[transfer])
                     else:
                         print('Enough in stock')
                         red_x_list.append('Enough in stock')
-                    wip_after = float(wip_text_list[transfer]) + float(amount_list[transfer])
+                        wip_after = float(wip_text_list[transfer]) + float(amount_list[transfer])
                 
                 else:
                     print('None in stock')
@@ -1039,10 +1042,14 @@ try:
             
             print('\nTotal Time: ' + str(minutes) + ' Minutes ' + str(round(total_time, 2)) + ' Seconds')
             print('\nCompleted Loop.')
-            print('----------------------------------------')
+            print('\n----------------------------------------')
 
         else:
-            print('The job is closed.')
+            if released_button is None:
+                print('\nThe job is closed.')
+            if on_hold_button is not None:
+                print('\nThe job is on hold.')
+            print('\n----------------------------------------')
         ask_for_next_job = True
 
 except KeyboardInterrupt:
