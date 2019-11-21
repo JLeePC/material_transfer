@@ -8,10 +8,11 @@ import pyperclip
 import csv
 import os
 import PIL
-from PIL import Image, ImageGrab
+from PIL import Image, ImageGrab, ImageFilter
 import pytesseract
 from file_routing import file_routing
 from copy_clipboard import copy_clipboard
+from go_up import go_up
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Users\jlee.NTPV\AppData\Local\Tesseract-OCR\tesseract.exe'
 
@@ -25,6 +26,7 @@ print('Ctrl_c to quit.')
 try:
     while True:
         pyautogui.PAUSE = 0.1
+        pwht = False
         # Go to next job
         if ask_for_next_job is True:
             pyautogui.click(1423,15)
@@ -79,6 +81,8 @@ try:
         if released_button is not None and on_hold_button is None:
 
             pyautogui.click(150,150)
+            time.sleep(0.5)
+            pyautogui.click(150,243)
             print('\nLooking for side bar.')
             button_location = pyautogui.locateOnScreen('up_arrow.png', region=(875,207,29,42))
             time.sleep(1)
@@ -87,52 +91,83 @@ try:
                 print('Up arrow not found')
             else:
                 print('Up arrow found')
-                pyautogui.click(890,250, clicks=4, interval=0.05)
-                pyautogui.click(890,227)
+                go_up()
+                pyautogui.click(351,243)
                 
             if button_location is not None:
                 print('\nLooking for LABOR.')
 
-                labor1 = pyautogui.locateOnScreen('labor1.png', region=(81,232,112,738))
-                time.sleep(0.1)
-                labor2 = pyautogui.locateOnScreen('labor2.png', region=(81,232,112,738))
-                time.sleep(0.1)
+                im = ImageGrab.grab(bbox =(81,233,193,970))
+                new_size = tuple(4*x for x in im.size)
+                im = im.resize(new_size, Image.ANTIALIAS)
+                im_bl = im.filter(ImageFilter.GaussianBlur(radius = 1))
+                im_gs = im_bl.convert('LA')
+                custom_oem_psm_config = r'--oem 3 --psm 6'
+                string = pytesseract.image_to_string(im_gs, config=custom_oem_psm_config)
 
-                if labor1 or labor2 is not None:
+                if 'PWHT' in string:
+                    pwht = True
+                    print('There is PWHT in this job.')
+                
+                if 'LABOR' in string:
                     page = 1
                     labor_lines = True
                     print('There is LABOR in this job.')
+
                 else:
                     page = 2
                     labor_loop = True
                     while labor_loop:
                         pyautogui.click(891,961, clicks=35, interval=0.05) # down arrow
                         time.sleep(0.25)
-                        labor1 = pyautogui.locateOnScreen('labor1.png', region=(81,232,112,738))
-                        labor2 = pyautogui.locateOnScreen('labor2.png', region=(81,232,112,738))
-                        time.sleep(0.25)
+                        im = ImageGrab.grab(bbox =(81,233,193,970))
+                        new_size = tuple(4*x for x in im.size)
+                        im = im.resize(new_size, Image.ANTIALIAS)
+                        im_bl = im.filter(ImageFilter.GaussianBlur(radius = 1))
+                        im_gs = im_bl.convert('LA')
+                        custom_oem_psm_config = r'--oem 3 --psm 6'
+                        string2 = pytesseract.image_to_string(im_gs, config=custom_oem_psm_config)
+                        
                         bottom_arrow = pyautogui.locateOnScreen('bottom_arrow.png', region=(880,940,30,40))
-                        if labor1 or labor2 is not None:
+                        
+                        if 'LABOR' in string2:
                             labor_lines = True
                             labor_loop = False
                             print('There is LABOR in this job.')
-                            break
+                            #break
+
+                        if 'PWHT' in string2:
+                            pwht = True
+                            #labor_loop = False
+                            print('There is PWHT in this job.')
+                            #break
+                        
                         if bottom_arrow is not None:
                             labor_lines = False
                             labor_loop = True
                             print('There is no LABOR in this job.')
-                            break
+                            #break
 
             else:
                 print('\nLooking for LABOR.')
-                labor1 = pyautogui.locateOnScreen('labor1.png')
-                labor2 = pyautogui.locateOnScreen('labor2.png')
-                if labor1 or labor2 is not None:
+
+                im = ImageGrab.grab(bbox =(81,233,193,970))
+                new_size = tuple(4*x for x in im.size)
+                im = im.resize(new_size, Image.ANTIALIAS)
+                im_bl = im.filter(ImageFilter.GaussianBlur(radius = 1))
+                im_gs = im_bl.convert('LA')
+                custom_oem_psm_config = r'--oem 3 --psm 6'
+                string = pytesseract.image_to_string(im_gs, config=custom_oem_psm_config)
+                
+                if 'LABOR' in string:
                     labor_lines = True
                     print('There is LABOR in this job.')
                 else:
                     labor_lines = False
                     print('There is no LABOR in this job.')
+                if 'PWHT' in string:
+                    pwht = True
+                    print('There is PWHT in this job.')
                 
             pyautogui.PAUSE = 0.1
 
@@ -141,50 +176,13 @@ try:
                 pyautogui.doubleClick(892,250)
                 pyautogui.click(890,227)
 
-            pyautogui.doubleClick(130,243)
-            current_part_no = copy_clipboard()
-            pyautogui.PAUSE = 0.1
-            if 'PWHT' in current_part_no:
-                pyautogui.click(920,290)
-                time.sleep(0.25)
-                pyautogui.typewrite(['tab'])
-                pyautogui.hotkey('shift','tab')
-                time.sleep(0.25)
-                current_part_no9 = copy_clipboard()
-                up_count = 0
-                go_up = True
-                while go_up:
-                    pyautogui.typewrite(['up'])
-                    current_part_no9 = copy_clipboard()
-                    if 'LABOR' not in current_part_no9:
-                        go_up = False
-                        break
-                    up_count = up_count + 1
-                for down in range(up_count+1):
-                    pyautogui.typewrite(['down'])
-                pyautogui.click(922,247,clicks=up_count,interval=0.025)
-            else:
-                if button_location:
-                    pyautogui.click(890,948, clicks=4, interval=0.05)
-                    pyautogui.click(890,964)
-                    pyautogui.doubleClick(130,243)
-
-                else:
-                    pyautogui.doubleClick(130,243)
-                    down_loop = True
-                    while down_loop:
-                        pyautogui.PAUSE = 0.03
-                        im1 = pyautogui.screenshot()
-                        for i in range(10):
-                            pyautogui.typewrite(['down'])
-                        im2 = pyautogui.screenshot()
-                        if im1 == im2:
-                            down_loop = False
-                            break
-                time.sleep(0.5)
+            if pwht:
+                pyautogui.doubleClick(130,243)
                 current_part_no = copy_clipboard()
-                time.sleep(0.1)
+                pyautogui.PAUSE = 0.1
                 if 'PWHT' in current_part_no:
+                    pyautogui.click(920,290)
+                    time.sleep(0.25)
                     pyautogui.typewrite(['tab'])
                     pyautogui.hotkey('shift','tab')
                     time.sleep(0.25)
@@ -192,7 +190,6 @@ try:
                     up_count = 0
                     go_up = True
                     while go_up:
-                        pyautogui.PAUSE = 0.1
                         pyautogui.typewrite(['up'])
                         current_part_no9 = copy_clipboard()
                         if 'LABOR' not in current_part_no9:
@@ -202,6 +199,45 @@ try:
                     for down in range(up_count+1):
                         pyautogui.typewrite(['down'])
                     pyautogui.click(922,247,clicks=up_count,interval=0.025)
+                else:
+                    if button_location:
+                        pyautogui.click(890,948, clicks=4, interval=0.05)
+                        pyautogui.click(890,964)
+                        pyautogui.doubleClick(130,243)
+
+                    else:
+                        pyautogui.doubleClick(130,243)
+                        down_loop = True
+                        while down_loop:
+                            pyautogui.PAUSE = 0.03
+                            im1 = pyautogui.screenshot()
+                            for i in range(10):
+                                pyautogui.typewrite(['down'])
+                            im2 = pyautogui.screenshot()
+                            if im1 == im2:
+                                down_loop = False
+                                break
+                    time.sleep(0.5)
+                    current_part_no = copy_clipboard()
+                    time.sleep(0.1)
+                    if 'PWHT' in current_part_no:
+                        pyautogui.typewrite(['tab'])
+                        pyautogui.hotkey('shift','tab')
+                        time.sleep(0.25)
+                        current_part_no9 = copy_clipboard()
+                        up_count = 0
+                        go_up = True
+                        while go_up:
+                            pyautogui.PAUSE = 0.1
+                            pyautogui.typewrite(['up'])
+                            current_part_no9 = copy_clipboard()
+                            if 'LABOR' not in current_part_no9:
+                                go_up = False
+                                break
+                            up_count = up_count + 1
+                        for down in range(up_count+1):
+                            pyautogui.typewrite(['down'])
+                        pyautogui.click(922,247,clicks=up_count,interval=0.025)
 
             labor_no = str('LABOR')
             
@@ -318,40 +354,50 @@ try:
                     pyautogui.typewrite(['down'])
                     total_down = False
 
-            if button_location is not None:
-                pyautogui.doubleClick(892,250)
-                pyautogui.doubleClick(892,250)
-                pyautogui.click(890,227)
-
-            pyautogui.doubleClick(130,243)
-            while down_loop:
-                pyautogui.PAUSE = 0.03
-                im1 = pyautogui.screenshot()
-                for i in range(10):
-                    pyautogui.typewrite(['down'])
-                im2 = pyautogui.screenshot()
-                if im1 == im2:
-                    down_loop = False
-                    break
-            current_part_no = copy_clipboard()
-            pyautogui.PAUSE = 0.1
-            if 'PWHT' in current_part_no:
-                pyautogui.typewrite(['tab'])
-                pyautogui.hotkey('shift','tab')
-                time.sleep(0.25)
-                current_part_no9 = copy_clipboard()
-                up_count = 0
-                go_up = True
-                while go_up:
-                    pyautogui.typewrite(['up'])
-                    current_part_no9 = copy_clipboard()
-                    if 'LABOR' not in current_part_no9:
-                        go_up = False
+            
+            if pwht:
+                if button_location is not None:
+                    pyautogui.doubleClick(892,250)
+                    pyautogui.doubleClick(892,250)
+                    pyautogui.click(890,227)
+                pyautogui.doubleClick(130,243)
+                current_part_no = copy_clipboard()
+                pyautogui.PAUSE = 0.1
+                if 'PWHT' in current_part_no:
+                    pyautogui.click(921,292)
+                    time.sleep(0.25)
+                if button_location is not None:
+                    pyautogui.doubleClick(892,250)
+                    pyautogui.doubleClick(892,250)
+                    pyautogui.click(890,227)
+                while down_loop:
+                    pyautogui.PAUSE = 0.03
+                    im1 = pyautogui.screenshot()
+                    for i in range(10):
+                        pyautogui.typewrite(['down'])
+                    im2 = pyautogui.screenshot()
+                    if im1 == im2:
+                        down_loop = False
                         break
-                    up_count = up_count + 1
-                for down in range(up_count+1):
-                    pyautogui.typewrite(['down'])
-                pyautogui.click(922,247,clicks=up_count,interval=0.025)
+                current_part_no = copy_clipboard()
+                pyautogui.PAUSE = 0.1
+                if 'PWHT' in current_part_no:
+                    pyautogui.typewrite(['tab'])
+                    pyautogui.hotkey('shift','tab')
+                    time.sleep(0.25)
+                    current_part_no9 = copy_clipboard()
+                    up_count = 0
+                    go_up = True
+                    while go_up:
+                        pyautogui.typewrite(['up'])
+                        current_part_no9 = copy_clipboard()
+                        if 'LABOR' not in current_part_no9:
+                            go_up = False
+                            break
+                        up_count = up_count + 1
+                    for down in range(up_count+1):
+                        pyautogui.typewrite(['down'])
+                    pyautogui.click(922,247,clicks=up_count,interval=0.025)
 
             if button_location is not None:
                 pyautogui.doubleClick(892,250)
@@ -548,7 +594,8 @@ try:
             max_range = len(item_list)
             pyautogui.click(1423,15)
             #print(item_list)
-            skip_me = input("Do you have numbers to change? (1/0): ")
+            #skip_me = input("Do you have numbers to change? (1/0): ")
+            skip_me = '1'
             pyautogui.doubleClick(219,243)
             if '1' in str(skip_me):
                 start_change = time.time()
@@ -591,7 +638,51 @@ try:
                 pyautogui.doubleClick(892,250)
                 pyautogui.click(890,227)
                 pyautogui.PAUSE = 0.05
+            
             pyautogui.doubleClick(356,243)
+            
+            if max_range ==1:
+                item_change = item_list[0]
+                heat_change = heat_list[0]
+                line = int(line_skip) + int(item_change) -1
+                for number_of_down in range(line):
+                    pyautogui.typewrite(['down'])
+                    time.sleep(0.05)
+                pyautogui.typewrite(str(heat_change))        
+                
+            else:
+                item_change_1 = item_list[0]
+                heat_change_1 = heat_list[0]
+                line_1 = int(line_skip) + int(item_change_1) -1
+                for number_of_down in range(line_1):
+                    pyautogui.typewrite(['down'])
+                pyautogui.typewrite(str(heat_change_1))
+
+                last_line = item_change_1
+                
+                for change in range(1,max_range):
+                    item_change = item_list[change]
+                    heat_change = heat_list[change]
+                    line = int(item_change) - last_line
+                    if line > 0:
+                        for number_of_down in range(line):
+                            pyautogui.typewrite(['down'])
+                    elif line < 0:
+                        for number_of_up in range(abs(line)):
+                            pyautogui.typewrite(['up'])
+                    pyautogui.typewrite(str(heat_change))
+                    last_line = item_change
+            
+            # HT Number Comment
+            time.sleep(0.25)
+            if button_location is not None:
+                pyautogui.PAUSE = 0.1
+                pyautogui.doubleClick(892,250)
+                pyautogui.doubleClick(892,250)
+                pyautogui.click(890,227)
+                pyautogui.PAUSE = 0.05
+            
+            pyautogui.doubleClick(794,243)
             
             if max_range ==1:
                 item_change = item_list[0]
@@ -637,6 +728,7 @@ try:
             wip_text_list = []
             released_text_list = []
             on_order_text_list = []
+            stocking_text_list = []
             sleep = 0.1
             pyautogui.doubleClick(130,243)
             pyautogui.PAUSE = 0.1
@@ -684,13 +776,21 @@ try:
                 on_order_text_im_gs = on_order_text_im.convert('LA')
                 on_order_text_string = pytesseract.image_to_string(on_order_text_im_gs, config=custom_oem_psm_config)
                 on_order_text_list.append(on_order_text_string)
+                #stocking
+                stocking_text_im = ImageGrab.grab(bbox =(816,arrow_top,886,arrow_bottom))
+                stocking_size = tuple(4*x for x in stocking_text_im.size)
+                stocking_text_im = stocking_text_im.resize(stocking_size, Image.ANTIALIAS)
+                stocking_text_im_gs = stocking_text_im.convert('LA')
+                stocking_text_string = pytesseract.image_to_string(stocking_text_im_gs, config=custom_oem_psm_config)
+                stocking_text_list.append(stocking_text_string)
                 
-                time.sleep(0.25)
+                #time.sleep(0.25)
                 print("\nPart: {}".format(part_no))
                 print("WIP: {}".format(wip_text_string))
                 print("Item Stock: {}".format(stock_text_string))
                 print("Released: {}".format(released_text_string))
                 print("On Order: {}".format(on_order_text_string))
+                print("Stocking: {}".format(stocking_text_string))
                 part_list.append(str(part_no))
                 
             else:
@@ -737,13 +837,21 @@ try:
                 on_order_text_im_gs = on_order_text_im.convert('LA')
                 on_order_text_string = pytesseract.image_to_string(on_order_text_im_gs, config=custom_oem_psm_config)
                 on_order_text_list.append(on_order_text_string)
+                #stocking
+                stocking_text_im = ImageGrab.grab(bbox =(816,arrow_top,886,arrow_bottom))
+                stocking_size = tuple(4*x for x in stocking_text_im.size)
+                stocking_text_im = stocking_text_im.resize(stocking_size, Image.ANTIALIAS)
+                stocking_text_im_gs = stocking_text_im.convert('LA')
+                stocking_text_string = pytesseract.image_to_string(stocking_text_im_gs, config=custom_oem_psm_config)
+                stocking_text_list.append(stocking_text_string)
                 
-                time.sleep(0.25)
+                #time.sleep(0.25)
                 print("\nPart: {}".format(part_no))
                 print("WIP: {}".format(wip_text_string))
                 print("Item Stock: {}".format(stock_text_string))
                 print("Released: {}".format(released_text_string))
                 print("On Order: {}".format(on_order_text_string))
+                print("Stocking: {}".format(stocking_text_string))
                 part_list.append(str(part_no))
                 last_line = item_change_1
                 
@@ -796,13 +904,21 @@ try:
                     on_order_text_im_gs = on_order_text_im.convert('LA')
                     on_order_text_string = pytesseract.image_to_string(on_order_text_im_gs, config=custom_oem_psm_config)
                     on_order_text_list.append(on_order_text_string)
+                    #stocking
+                    stocking_text_im = ImageGrab.grab(bbox =(816,arrow_top,886,arrow_bottom))
+                    stocking_size = tuple(4*x for x in stocking_text_im.size)
+                    stocking_text_im = stocking_text_im.resize(stocking_size, Image.ANTIALIAS)
+                    stocking_text_im_gs = stocking_text_im.convert('LA')
+                    stocking_text_string = pytesseract.image_to_string(stocking_text_im_gs, config=custom_oem_psm_config)
+                    stocking_text_list.append(stocking_text_string)
                     
-                    time.sleep(0.25)
+                    #time.sleep(0.25)
                     print("\nPart: {}".format(part_no))
                     print("WIP: {}".format(wip_text_string))
                     print("Item Stock: {}".format(stock_text_string))
                     print("Released: {}".format(released_text_string))
                     print("On Order: {}".format(on_order_text_string))
+                    print("Stocking: {}".format(stocking_text_string))
                     part_list.append(str(part_no))
                     last_line = item_change
                             
@@ -830,6 +946,7 @@ try:
             pyautogui.click(1423,15)
             print('\nCtrl-C to quit')
             wip = input('Which direction do you want to transfer? (+ = to WIP/- = to Stock): ')
+            time.sleep(0.1)
             pyautogui.PAUSE = 0.1
             
             if '-' in wip:
@@ -846,9 +963,12 @@ try:
             for transfer in range(0,max_range):
                 transfer_switch = False
                 item_transfer = int(item_list[transfer]) + line_skip
-                amount_transfer = amount_list[transfer]
-                stock = stock_text_list[transfer]
-                part = part_list[transfer]
+                amount_transfer = float(amount_list[transfer])
+                stock = float(stock_text_list[transfer])
+                part = str(part_list[transfer])
+                start_wip = float(wip_text_list[transfer])
+                released = float(released_text_list[transfer])
+                stocking = str(stocking_text_list[transfer])
 
                 if ',' in str(stock) and len(stock) >= 9:
                     stock = stock.replace(",","",1)
@@ -866,15 +986,26 @@ try:
                             else:
                                 stock = float(stock) + float(required)
 
+                if len(str(stock)) == 0:
+                    stock = '0.000'
+
+                if float(stock) > 0:
+                    transfer_switch = True
+                    if start_wip == amount_transfer:
+                        print('Already in WIP')
+                        red_x_list.append('Already in WIP')
+                        transfer_switch = False
+                else:
+                    print('None in stock')
+                    red_x_list.append('None in stock')
+                    transfer_switch = False
+
+                if amount_transfer > start_wip:
+                    amount_transfer = amount_transfer - start_wip
+
                 transfer_time = time.strftime('%Y-%m-%d, %H:%M:%S', time.localtime())
                 transfer_time_list.append(transfer_time)
 
-                if len(str(stock)) == 0:
-                    stock = '0.000'
-                    
-                if float(stock) > 0:
-                    transfer_switch = True
-                    
                 if transfer_switch:
                     # activate window
                     pyautogui.click(827,252)
@@ -903,23 +1034,21 @@ try:
 
                     pyautogui.click(1034,597)
                     pyautogui.click(868,568)
-                    print('Item ' + str(item_transfer) + ' Done.')
+                    print('\nTransfering {} {} for item {}'.format(amount_transfer, stocking, item_transfer))
 
                     if red_x is not None:
-                        print('Not enough in stock')
+                        print('\nNot enough in stock')
                         red_x_list.append('Not enough in stock')
                         wip_after = float(wip_text_list[transfer])
                     else:
-                        print('Enough in stock')
+                        print('\nEnough in stock')
                         red_x_list.append('Enough in stock')
-                        wip_after = float(wip_text_list[transfer]) + float(amount_list[transfer])
+                        wip_after = start_wip + amount_transfer
+                    transfers_list.append(part)
                 
                 else:
-                    print('None in stock')
-                    red_x_list.append('None in stock')
                     wip_after = float(wip_text_list[transfer])
-
-                transfers_list.append(part)
+                
                 wip_after_list.append(float(wip_after))
                 stock_list.append(float(stock))
                 amount_transfer_list.append(float(amount_transfer))
