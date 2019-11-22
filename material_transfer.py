@@ -82,7 +82,9 @@ try:
 
             pyautogui.click(150,150)
             time.sleep(0.5)
-            pyautogui.click(150,243)
+            pyautogui.click(351,243)
+            pyautogui.typewrite(['up'])
+            pyautogui.typewrite(['up'])
             print('\nLooking for side bar.')
             button_location = pyautogui.locateOnScreen('up_arrow.png', region=(875,207,29,42))
             time.sleep(1)
@@ -104,6 +106,7 @@ try:
                 im_gs = im_bl.convert('LA')
                 custom_oem_psm_config = r'--oem 3 --psm 6'
                 string = pytesseract.image_to_string(im_gs, config=custom_oem_psm_config)
+                string_list = string.split("\n")
 
                 if 'PWHT' in string:
                     pwht = True
@@ -127,6 +130,9 @@ try:
                         im_gs = im_bl.convert('LA')
                         custom_oem_psm_config = r'--oem 3 --psm 6'
                         string2 = pytesseract.image_to_string(im_gs, config=custom_oem_psm_config)
+
+                        string_list2 = string2.split("\n")
+                        string_list = string_list + string_list2
                         
                         bottom_arrow = pyautogui.locateOnScreen('bottom_arrow.png', region=(880,940,30,40))
                         
@@ -158,6 +164,7 @@ try:
                 im_gs = im_bl.convert('LA')
                 custom_oem_psm_config = r'--oem 3 --psm 6'
                 string = pytesseract.image_to_string(im_gs, config=custom_oem_psm_config)
+                string_list = string.split("\n")
                 
                 if 'LABOR' in string:
                     labor_lines = True
@@ -171,16 +178,15 @@ try:
                 
             pyautogui.PAUSE = 0.1
 
-            if button_location is not None:
-                pyautogui.doubleClick(892,250)
-                pyautogui.doubleClick(892,250)
-                pyautogui.click(890,227)
+            string_list_len = len(string_list)
+
+            go_up()
 
             if pwht:
                 pyautogui.doubleClick(130,243)
                 current_part_no = copy_clipboard()
                 pyautogui.PAUSE = 0.1
-                if 'PWHT' in current_part_no:
+                if 'PWHT' in string_list[0]:
                     pyautogui.click(920,290)
                     time.sleep(0.25)
                     pyautogui.typewrite(['tab'])
@@ -199,10 +205,10 @@ try:
                     for down in range(up_count+1):
                         pyautogui.typewrite(['down'])
                     pyautogui.click(922,247,clicks=up_count,interval=0.025)
-                else:
+                #else:
+                if 'PWHT' in string_list[string_list_len - 1]:
                     if button_location:
-                        pyautogui.click(890,948, clicks=4, interval=0.05)
-                        pyautogui.click(890,964)
+                        go_up()
                         pyautogui.doubleClick(130,243)
 
                     else:
@@ -240,7 +246,16 @@ try:
                         pyautogui.click(922,247,clicks=up_count,interval=0.025)
 
             labor_no = str('LABOR')
-            
+
+            down_loop = True
+
+            if 'LABOR' in string_list[string_list_len - 1]:
+                print('Labor at bottom')
+                labor_lines = False
+            if 'LABOR' in string_list[0]:
+                print('Labor at top')
+                labor_lines = True
+            """
             if button_location is not None and labor_lines is True:
                 pyautogui.click(890,948, clicks=4, interval=0.05)
                 pyautogui.click(890,964)
@@ -250,9 +265,9 @@ try:
                 if labor_no in current:
                     print('Labor at bottom')
                     labor_lines = False
-                pyautogui.click(890,250, clicks=4, interval=0.05)
-                pyautogui.click(890,227)
+                go_up()
                 down_loop = False
+            
             elif button_location is None and labor_lines is True:
                 pyautogui.doubleClick(130,243)
                 down_loop = True
@@ -277,15 +292,24 @@ try:
                     if labor_no in current:
                         labor_lines = False
                         print('Labor at bottom')
-                            
+            """   
             if labor_lines:
-                if button_location is not None:
-                    pyautogui.doubleClick(892,250)
-                    pyautogui.doubleClick(892,250)
-                    pyautogui.click(890,227)
-            if labor_lines:
-                print('\nLooking for LABOR lines.')
+                go_up()
                 pyautogui.doubleClick(130,243)
+                print('\nLooking for LABOR lines.')
+
+                for i in range(0,string_list_len):
+                    current_part = string_list[i]
+                    if "LABOR" in current_part:
+                        total_lines = i
+                        for down in range(total_lines):
+                            pyautogui.typewrite(['down'])
+                        time.sleep(0.5)
+                        pyautogui.click(919,291)
+                        break
+                
+                pyautogui.doubleClick(130,243)
+                """
                 labor = False
                 total_lines = 0
                 while labor is False:
@@ -301,12 +325,11 @@ try:
                     total_lines = total_lines + 1
                 first_labor = current_part_no1
                 print('First LABOR line is: ' + str(first_labor))
+                """
+                print('First LABOR line is: ' + string_list[total_lines])
+                first_labor = string_list[total_lines]
 
-                if button_location is not None:
-                    pyautogui.doubleClick(892,250)
-                    pyautogui.doubleClick(892,250)
-                    pyautogui.click(890,227)
-                    time.sleep(0.25)
+                go_up()
                 pyautogui.doubleClick(130,243)
                 print('Lines before Labor line: ' + str(total_lines))
                 labor_copy = False
@@ -329,21 +352,13 @@ try:
                     time.sleep(0.1)
                     if current_part_no == first_labor:
                         labor_copy = True
-                        if button_location is not None:
-                            pyautogui.PAUSE = 0.1
-                            pyautogui.doubleClick(892,250)
-                            pyautogui.doubleClick(892,250)
-                            pyautogui.click(890,227)
+                        go_up()
                         print('\nFound labor copy.')
                         break
                     if labor_no in current:
                         pyautogui.click(919,291)
                         time.sleep(.1)
-                        if button_location is not None:
-                            pyautogui.PAUSE = 0.1
-                            pyautogui.doubleClick(892,250)
-                            pyautogui.doubleClick(892,250)
-                            pyautogui.click(890,227)
+                        go_up()
                         pyautogui.doubleClick(130,243)
                         print('Moved ' + str(current_part_no))
                         total_down = True
@@ -356,53 +371,46 @@ try:
 
             
             if pwht:
-                if button_location is not None:
-                    pyautogui.doubleClick(892,250)
-                    pyautogui.doubleClick(892,250)
-                    pyautogui.click(890,227)
-                pyautogui.doubleClick(130,243)
-                current_part_no = copy_clipboard()
-                pyautogui.PAUSE = 0.1
-                if 'PWHT' in current_part_no:
-                    pyautogui.click(921,292)
-                    time.sleep(0.25)
-                if button_location is not None:
-                    pyautogui.doubleClick(892,250)
-                    pyautogui.doubleClick(892,250)
-                    pyautogui.click(890,227)
-                while down_loop:
-                    pyautogui.PAUSE = 0.03
-                    im1 = pyautogui.screenshot()
-                    for i in range(10):
-                        pyautogui.typewrite(['down'])
-                    im2 = pyautogui.screenshot()
-                    if im1 == im2:
-                        down_loop = False
-                        break
-                current_part_no = copy_clipboard()
-                pyautogui.PAUSE = 0.1
-                if 'PWHT' in current_part_no:
-                    pyautogui.typewrite(['tab'])
-                    pyautogui.hotkey('shift','tab')
-                    time.sleep(0.25)
-                    current_part_no9 = copy_clipboard()
-                    up_count = 0
-                    go_up = True
-                    while go_up:
-                        pyautogui.typewrite(['up'])
-                        current_part_no9 = copy_clipboard()
-                        if 'LABOR' not in current_part_no9:
-                            go_up = False
+                if 'PWHT' in string_list[0]:
+                    go_up()
+                    pyautogui.doubleClick(130,243)
+                    current_part_no = copy_clipboard()
+                    pyautogui.PAUSE = 0.1
+                    if 'PWHT' in current_part_no:
+                        pyautogui.click(921,292)
+                        time.sleep(0.25)
+                if 'PWHT' in string_list[string_list_len - 1]:
+                    go_up()
+                    while down_loop:
+                        pyautogui.PAUSE = 0.03
+                        im1 = pyautogui.screenshot()
+                        for i in range(10):
+                            pyautogui.typewrite(['down'])
+                        im2 = pyautogui.screenshot()
+                        if im1 == im2:
+                            down_loop = False
                             break
-                        up_count = up_count + 1
-                    for down in range(up_count+1):
-                        pyautogui.typewrite(['down'])
-                    pyautogui.click(922,247,clicks=up_count,interval=0.025)
+                    current_part_no = copy_clipboard()
+                    pyautogui.PAUSE = 0.1
+                    if 'PWHT' in current_part_no:
+                        pyautogui.typewrite(['tab'])
+                        pyautogui.hotkey('shift','tab')
+                        time.sleep(0.25)
+                        current_part_no9 = copy_clipboard()
+                        up_count = 0
+                        go_up = True
+                        while go_up:
+                            pyautogui.typewrite(['up'])
+                            current_part_no9 = copy_clipboard()
+                            if 'LABOR' not in current_part_no9:
+                                go_up = False
+                                break
+                            up_count = up_count + 1
+                        for down in range(up_count+1):
+                            pyautogui.typewrite(['down'])
+                        pyautogui.click(922,247,clicks=up_count,interval=0.025)
 
-            if button_location is not None:
-                pyautogui.doubleClick(892,250)
-                pyautogui.doubleClick(892,250)
-                pyautogui.click(890,227)
+            go_up()
 
             pyautogui.click(1423,15)
 
@@ -420,13 +428,13 @@ try:
                     pyautogui.hotkey('shift','tab')
                     time.sleep(0.25)
                     current_part_no9 = copy_clipboard()
-                    go_up = True
+                    go_up_count = True
                     up_count = 0
-                    while go_up:
+                    while go_up_count:
                         pyautogui.typewrite(['up'])
                         current_part_no9 = copy_clipboard()
                         if 'LABOR' not in current_part_no9 and 'PWHT' not in current_part_no9:
-                            go_up = False
+                            go_up_count = False
                             break
                         up_count = up_count + 1
                     for down in range(up_count+1):
@@ -444,10 +452,7 @@ try:
                 pyautogui.PAUSE = 0.05
                 change_part = True
                 while change_part:
-                    if button_location is not None:
-                        pyautogui.doubleClick(892,250)
-                        pyautogui.doubleClick(892,250)
-                        pyautogui.click(890,227)
+                    go_up()
                     pyautogui.click(1423,15)
                     change_line = input('Which line needs to change?: ').zfill(2)
                     new_part = input('What is the new part number?: ')
@@ -528,10 +533,7 @@ try:
                         change_part = False
                         break
             
-            if button_location is not None:
-                pyautogui.doubleClick(892,250)
-                pyautogui.doubleClick(892,250)
-                pyautogui.click(890,227)
+            go_up()
                 
             pyautogui.click(1423,15)
             pyautogui.PAUSE = 0.05
@@ -547,50 +549,51 @@ try:
             #job_range = []
             stop_loop = False
             while not stop_loop:
-                item_input = input("Please enter the item number (enter + to quit): ")
                 try:
-                    if '-' in item_input:
-                        length = len(item_list) - 1
-                        item_list.pop(length)
-                        amount_list.pop(length)
-                        heat_list.pop(length)
+                    item_input = input("Please enter the item number (enter + to quit): ")
+                    try:
+                        if '-' in item_input:
+                            length = len(item_list) - 1
+                            item_list.pop(length)
+                            amount_list.pop(length)
+                            heat_list.pop(length)
+                            continue
+                        if '+' in str(item_input) and len(item_list) == 0:
+                            raise EmptyInput
+                        if '+' in str(item_input):
+                            stop_loop = True
+                            break
+                        if len(item_input) == 0:
+                            raise EmptyInput
+                    except EmptyInput:
+                        print("Input is empty.\n")
                         continue
-                    if '+' in str(item_input) and len(item_list) == 0:
-                        raise EmptyInput
-                    if '+' in str(item_input):
-                        stop_loop = True
-                        break
-                    if len(item_input) == 0:
-                        raise EmptyInput
-                except EmptyInput:
-                    print("Input is empty.\n")
-                    continue
+                    except ValueError:
+                        continue
+                    amount_input = input("Please enter the amount: ")
+                    try:
+                        if len(amount_input) == 0:
+                            raise EmptyInput
+                    except EmptyInput:
+                        print("Input is empty.\n")
+                        continue
+
+                    heat_number = input("Please enter the heat number: ")
+
+                    if '+' in heat_number:
+                        heat_number = last_heat_number
+
+                    item_list.append(int(item_input))
+                    amount_list.append(float(amount_input))
+                    heat_list.append(str(heat_number.upper()))
+                    last_heat_number = heat_number
                 except ValueError:
+                    len_pop = len(item_list)
+                    item_list.pop(len_pop-1)
+                    print("\nValue error.")
                     continue
-                amount_input = input("Please enter the amount: ")
-                try:
-                    if len(amount_input) == 0:
-                        raise EmptyInput
-                except EmptyInput:
-                    print("Input is empty.\n")
-                    continue
-
-                heat_number = input("Please enter the heat number: ")
-
-                if '+' in heat_number:
-                    heat_number = last_heat_number
-
-                item_list.append(int(item_input))
-                amount_list.append(float(amount_input))
-                heat_list.append(str(heat_number.upper()))
-                last_heat_number = heat_number
                 
-            if button_location is not None:
-                pyautogui.PAUSE = 0.1
-                pyautogui.doubleClick(892,250)
-                pyautogui.doubleClick(892,250)
-                pyautogui.click(890,227)
-                pyautogui.PAUSE = 0.05
+            go_up()
             max_range = len(item_list)
             pyautogui.click(1423,15)
             #print(item_list)
@@ -625,19 +628,16 @@ try:
                         if line > 0:
                             for number_of_down in range(line):
                                 pyautogui.typewrite(['down'])
+                                time.sleep(0.05)
                         elif line < 0:
                             for number_of_up in range(abs(line)):
                                 pyautogui.typewrite(['up'])
+                                time.sleep(0.05)
                         pyautogui.typewrite(str(amount_change))
                         last_line = item_change
             # HT Number
             time.sleep(0.25)
-            if button_location is not None:
-                pyautogui.PAUSE = 0.1
-                pyautogui.doubleClick(892,250)
-                pyautogui.doubleClick(892,250)
-                pyautogui.click(890,227)
-                pyautogui.PAUSE = 0.05
+            go_up()
             
             pyautogui.doubleClick(356,243)
             
@@ -656,6 +656,7 @@ try:
                 line_1 = int(line_skip) + int(item_change_1) -1
                 for number_of_down in range(line_1):
                     pyautogui.typewrite(['down'])
+                    time.sleep(0.05)
                 pyautogui.typewrite(str(heat_change_1))
 
                 last_line = item_change_1
@@ -667,20 +668,17 @@ try:
                     if line > 0:
                         for number_of_down in range(line):
                             pyautogui.typewrite(['down'])
+                            time.sleep(0.05)
                     elif line < 0:
                         for number_of_up in range(abs(line)):
                             pyautogui.typewrite(['up'])
+                            time.sleep(0.05)
                     pyautogui.typewrite(str(heat_change))
                     last_line = item_change
             
             # HT Number Comment
             time.sleep(0.25)
-            if button_location is not None:
-                pyautogui.PAUSE = 0.1
-                pyautogui.doubleClick(892,250)
-                pyautogui.doubleClick(892,250)
-                pyautogui.click(890,227)
-                pyautogui.PAUSE = 0.05
+            go_up()
             
             pyautogui.doubleClick(794,243)
             
@@ -699,6 +697,7 @@ try:
                 line_1 = int(line_skip) + int(item_change_1) -1
                 for number_of_down in range(line_1):
                     pyautogui.typewrite(['down'])
+                    time.sleep(0.05)
                 pyautogui.typewrite(str(heat_change_1))
 
                 last_line = item_change_1
@@ -710,19 +709,16 @@ try:
                     if line > 0:
                         for number_of_down in range(line):
                             pyautogui.typewrite(['down'])
+                            time.sleep(0.05)
                     elif line < 0:
                         for number_of_up in range(abs(line)):
                             pyautogui.typewrite(['up'])
+                            time.sleep(0.05)
                     pyautogui.typewrite(str(heat_change))
                     last_line = item_change
                     
             time.sleep(0.25)
-            if button_location is not None:
-                pyautogui.PAUSE = 0.1
-                pyautogui.doubleClick(892,250)
-                pyautogui.doubleClick(892,250)
-                pyautogui.click(890,227)
-                pyautogui.PAUSE = 0.05
+            go_up()
             part_list = []
             stock_text_list = []
             wip_text_list = []
@@ -939,18 +935,19 @@ try:
             time.sleep(0.5)
             # open transfer window
             pyautogui.click(550,60)
+            time.sleep(1)
             okWindow = gw.getWindowsWithTitle('Start Manufacturing Order Detail')
             while len(gw.getWindowsWithTitle('Start Manufacturing Order Detail')) == 0:
-                time.sleep(0.25)
-            time.sleep(0.25)
-            pyautogui.click(1423,15)
-            print('\nCtrl-C to quit')
-            wip = input('Which direction do you want to transfer? (+ = to WIP/- = to Stock): ')
+                time.sleep(1)
+            time.sleep(0.5)
+            #pyautogui.click(1423,15)
+            #print('\nCtrl-C to quit')
+            #wip = input('Which direction do you want to transfer? (+ = to WIP/- = to Stock): ')
             time.sleep(0.1)
             pyautogui.PAUSE = 0.1
             
-            if '-' in wip:
-                pyautogui.click(831,682)
+            #if '-' in wip:
+                #pyautogui.click(831,682)
             start_transfer = time.time()
         # material transfer loop
             red_x_list = []
@@ -959,16 +956,23 @@ try:
             transfers_list = []
             stock_list = []
             amount_transfer_list = []
+            wip_list = []
             pyautogui.PAUSE = 0.1
             for transfer in range(0,max_range):
+                pyautogui.click(645,684)
                 transfer_switch = False
                 item_transfer = int(item_list[transfer]) + line_skip
                 amount_transfer = float(amount_list[transfer])
-                stock = float(stock_text_list[transfer])
+                stock = str(stock_text_list[transfer])
                 part = str(part_list[transfer])
                 start_wip = float(wip_text_list[transfer])
                 released = float(released_text_list[transfer])
                 stocking = str(stocking_text_list[transfer])
+
+                wip = '+'
+
+                if len(stock) == 0:
+                    stock = '0.000'
 
                 if ',' in str(stock) and len(stock) >= 9:
                     stock = stock.replace(",","",1)
@@ -976,33 +980,55 @@ try:
                 if ',' in str(stock):
                     stock = stock.replace(",",".")
 
-                if part in transfers_list and len(stock) > 0:
+                if ' ' in str(stock):
+                    stock = stock.replace(" ",".")
+
+                stock = float(stock)
+
+                if part in transfers_list:
                     for search in range(0,len(transfers_list)):
                         item = transfers_list[search]
                         required = amount_transfer_list[search]
-                        if item == part:
+                        stock = float(stock_list[search])
+                        if item == part and stock > 0:
                             if '+' in wip:
                                 stock = float(stock) - float(required)
                             else:
                                 stock = float(stock) + float(required)
 
-                if len(str(stock)) == 0:
-                    stock = '0.000'
-
                 if float(stock) > 0:
+                    red_x_look = True
                     transfer_switch = True
                     if start_wip == amount_transfer:
-                        print('Already in WIP')
+                        wip = '0'
+                        print('\nItem {} already in WIP'.format(item_transfer))
                         red_x_list.append('Already in WIP')
                         transfer_switch = False
+                    elif amount_transfer > stock:
+                        wip = '0'
+                        red_x_look = False
+                        amount_transfer = stock
+                        print('\nNot enough of item {} in stock'.format(item_transfer))
+                        red_x_list.append('Not enough in stock')
+
+                    if amount_transfer > start_wip:
+                        amount_transfer = amount_transfer - start_wip
+
+                    if start_wip > float(amount_list[transfer]):
+                        wip = '-'
+                        pyautogui.click(831,682)
+                        amount_transfer = start_wip - float(amount_list[transfer])
                 else:
-                    print('None in stock')
-                    red_x_list.append('None in stock')
-                    transfer_switch = False
-
-                if amount_transfer > start_wip:
-                    amount_transfer = amount_transfer - start_wip
-
+                    if start_wip == amount_transfer:
+                        wip = '0'
+                        print('\nItem {} already in WIP'.format(item_transfer))
+                        red_x_list.append('Already in WIP')
+                        transfer_switch = False
+                    else:
+                        print("None in stock")
+                        wip = '0'
+                        red_x_list.append('None in stock')
+                    
                 transfer_time = time.strftime('%Y-%m-%d, %H:%M:%S', time.localtime())
                 transfer_time_list.append(transfer_time)
 
@@ -1035,15 +1061,17 @@ try:
                     pyautogui.click(1034,597)
                     pyautogui.click(868,568)
                     print('\nTransfering {} {} for item {}'.format(amount_transfer, stocking, item_transfer))
-
-                    if red_x is not None:
-                        print('\nNot enough in stock')
-                        red_x_list.append('Not enough in stock')
-                        wip_after = float(wip_text_list[transfer])
-                    else:
-                        print('\nEnough in stock')
-                        red_x_list.append('Enough in stock')
-                        wip_after = start_wip + amount_transfer
+                    
+                    if red_x_look:
+                        if red_x is not None:
+                            print('\nNot enough of item {} in stock'.format(item_transfer))
+                            red_x_list.append('Not enough in stock')
+                            wip_after = float(wip_text_list[transfer])
+                        else:
+                            print('\nEnough of item {} in stock'.format(item_transfer))
+                            red_x_list.append('Enough in stock')
+                            wip_after = start_wip + amount_transfer
+                    
                     transfers_list.append(part)
                 
                 else:
@@ -1052,6 +1080,7 @@ try:
                 wip_after_list.append(float(wip_after))
                 stock_list.append(float(stock))
                 amount_transfer_list.append(float(amount_transfer))
+                wip_list.append(wip)
             # close transfer window
             pyautogui.click(1004, 776)
 
@@ -1073,7 +1102,7 @@ try:
                 for write in range(0,max_range):
 
                     item_writer = str(item_list[write]).zfill(2)
-                    amount_writer = amount_list[write]
+                    amount_writer = amount_transfer_list[write]
                     part_writer = part_list[write]
                     red_x_writer = red_x_list[write]
                     job_writer = job_no
@@ -1084,6 +1113,7 @@ try:
                     released_text_writer = released_text_list[write]
                     on_order_text_writer = on_order_text_list[write]
                     wip_after_writer = wip_after_list[write]
+                    wip_writer = wip_list[write]
 
                     if len(on_order_text_writer) == 0:
                         on_order_text_writer = '0.00'
@@ -1104,7 +1134,7 @@ try:
                     on_order_text_writer = round(float(on_order_text_writer),3)
                     wip_after_writer = round(wip_after_writer,3)
                     
-                    csv_writer.writerow({'Time': transfer_time_writer, 'Job number': job_writer, '+/-': wip,
+                    csv_writer.writerow({'Time': transfer_time_writer, 'Job number': job_writer, '+/-': wip_writer,
                                          'Item': item_writer, 'Part Number': part_writer,
                                          'Heat number': heat_number_writer, 'Amount': amount_writer, 'WIP Before': wip_text_writer,
                                          'WIP After': wip_after_writer, 'Stock': red_x_writer, 'Stock Amount': stock_text_writer,
@@ -1119,7 +1149,7 @@ try:
                 for write in range(0,max_range):
 
                     item_writer = str(item_list[write]).zfill(2)
-                    amount_writer = amount_list[write]
+                    amount_writer = amount_transfer_list[write]
                     part_writer = part_list[write]
                     red_x_writer = red_x_list[write]
                     job_writer = job_no
@@ -1130,6 +1160,7 @@ try:
                     released_text_writer = released_text_list[write]
                     on_order_text_writer = on_order_text_list[write]
                     wip_after_writer = wip_after_list[write]
+                    wip_writer = wip_list[write]
 
                     if len(on_order_text_writer) == 0:
                         on_order_text_writer = '0.00'
@@ -1150,7 +1181,7 @@ try:
                     on_order_text_writer = round(float(on_order_text_writer),3)
                     wip_after_writer = round(wip_after_writer,3)
                     
-                    csv_writer.writerow({'Time': transfer_time_writer, 'Job number': job_writer, '+/-': wip,
+                    csv_writer.writerow({'Time': transfer_time_writer, 'Job number': job_writer, '+/-': wip_writer,
                                          'Item': item_writer, 'Part Number': part_writer,
                                          'Heat number': heat_number_writer, 'Amount': amount_writer, 'WIP Before': wip_text_writer,
                                          'WIP After': wip_after_writer, 'Stock': red_x_writer, 'Stock Amount': stock_text_writer,
