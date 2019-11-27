@@ -117,42 +117,41 @@ try:
                     labor_lines = True
                     print('There is LABOR in this job.')
 
-                else:
-                    page = 2
-                    labor_loop = True
-                    while labor_loop:
-                        pyautogui.click(891,961, clicks=35, interval=0.05) # down arrow
-                        time.sleep(0.25)
-                        im = ImageGrab.grab(bbox =(81,233,193,970))
-                        new_size = tuple(4*x for x in im.size)
-                        im = im.resize(new_size, Image.ANTIALIAS)
-                        im_bl = im.filter(ImageFilter.GaussianBlur(radius = 1))
-                        im_gs = im_bl.convert('LA')
-                        custom_oem_psm_config = r'--oem 3 --psm 6'
-                        string2 = pytesseract.image_to_string(im_gs, config=custom_oem_psm_config)
+                page = 2
+                labor_loop = True
+                while labor_loop:
+                    pyautogui.click(891,961, clicks=35, interval=0.05) # down arrow
+                    time.sleep(0.25)
+                    im = ImageGrab.grab(bbox =(81,233,193,970))
+                    new_size = tuple(4*x for x in im.size)
+                    im = im.resize(new_size, Image.ANTIALIAS)
+                    im_bl = im.filter(ImageFilter.GaussianBlur(radius = 1))
+                    im_gs = im_bl.convert('LA')
+                    custom_oem_psm_config = r'--oem 3 --psm 6'
+                    string2 = pytesseract.image_to_string(im_gs, config=custom_oem_psm_config)
 
-                        string_list2 = string2.split("\n")
-                        string_list = string_list + string_list2
-                        
-                        bottom_arrow = pyautogui.locateOnScreen('bottom_arrow.png', region=(880,940,30,40))
-                        
-                        if 'LABOR' in string2:
-                            labor_lines = True
-                            labor_loop = False
-                            print('There is LABOR in this job.')
-                            #break
+                    string_list2 = string2.split("\n")
+                    string_list = string_list + string_list2
+                    
+                    bottom_arrow = pyautogui.locateOnScreen('bottom_arrow.png', region=(880,940,30,40))
+                    
+                    if 'LABOR' in string2:
+                        labor_lines = True
+                        labor_loop = False
+                        print('There is LABOR in this job.')
+                        #break
 
-                        if 'PWHT' in string2:
-                            pwht = True
-                            #labor_loop = False
-                            print('There is PWHT in this job.')
-                            #break
-                        
-                        if bottom_arrow is not None:
-                            labor_lines = False
-                            labor_loop = True
-                            print('There is no LABOR in this job.')
-                            #break
+                    if 'PWHT' in string2:
+                        pwht = True
+                        #labor_loop = False
+                        print('There is PWHT in this job.')
+                        #break
+                    
+                    if bottom_arrow is not None:
+                        labor_lines = False
+                        labor_loop = True
+                        print('There is no LABOR in this job.')
+                        #break
 
             else:
                 print('\nLooking for LABOR.')
@@ -423,8 +422,11 @@ try:
                 while add_part:
                     new_part = input('What is the new part number?: ')
                     pyautogui.click(920,312) # new line
+                    time.sleep(0.25)
                     pyautogui.typewrite(str(new_part))
+                    time.sleep(0.5)
                     pyautogui.typewrite(['tab'])
+                    time.sleep(0.25)
                     pyautogui.hotkey('shift','tab')
                     time.sleep(0.25)
                     current_part_no9 = copy_clipboard()
@@ -456,6 +458,7 @@ try:
                     pyautogui.click(1423,15)
                     change_line = input('Which line needs to change?: ').zfill(2)
                     new_part = input('What is the new part number?: ')
+                    go_up()
                     if '01' in change_line:
                         pyautogui.doubleClick(130,243)
                         pyautogui.click(919,289) # bottom
@@ -469,14 +472,14 @@ try:
                         pyautogui.hotkey('shift','tab')
                         time.sleep(0.5)
                         current_part_no9 = copy_clipboard()
-                        go_up = True
+                        go_up_switch = True
                         up_count = 0
-                        while go_up:
+                        while go_up_switch:
                             pyautogui.typewrite(['up'])
                             current_part_no9 = copy_clipboard()
                             time.sleep(0.25)
                             if 'LABOR' not in current_part_no9 and 'PWHT' not in current_part_no9:
-                                go_up = False
+                                go_up_switch = False
                                 break
                             up_count = up_count + 1
                         for down in range(up_count+1):
@@ -488,7 +491,9 @@ try:
                         pyautogui.typewrite(current_part_no)
                         time.sleep(0.5)
                         pyautogui.click(920,227) # top
+                        go_up()
                     else:
+                        go_up()
                         pyautogui.doubleClick(130,243)
                         change_line_range = int(change_line) - 1
                         for number_of_down in range(change_line_range):
@@ -505,14 +510,14 @@ try:
                         pyautogui.hotkey('shift','tab')
                         time.sleep(0.5)
                         current_part_no9 = copy_clipboard()
-                        go_up = True
+                        go_up_switch = True
                         up_count = 0
-                        while go_up:
+                        while go_up_switch:
                             pyautogui.typewrite(['up'])
                             current_part_no9 = copy_clipboard()
                             time.sleep(0.25)
                             if 'LABOR' not in current_part_no9 and 'PWHT' not in current_part_no9:
-                                go_up = False
+                                go_up_switch = False
                                 break
                             up_count = up_count + 1
                         for down in range(up_count+1):
