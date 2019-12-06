@@ -8,16 +8,28 @@ import pyperclip
 import csv
 import os
 import PIL
+import getpass
 from PIL import Image, ImageGrab, ImageFilter
 import pytesseract
 from file_routing import file_routing
 from copy_clipboard import copy_clipboard
 from go_up import go_up
+from combine_workbook import combine_workbook
+
+username = "NTPV\jlee"
+password = getpass.getpass("Enter Password: ")
+path = r'\\NTPV-SERVER2008\ntpv data'
+
+mount_command = "net use {} /user:{} {} /persistent:no".format(path,username,password)
+os.system(mount_command)
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Users\jlee.NTPV\AppData\Local\Tesseract-OCR\tesseract.exe'
 
 class EmptyInput(Exception):
     pass
+
+def remove_values_from_list(the_list, val):
+   return [value for value in the_list if value != val]
 
 ask_for_next_job = False
 pyautogui.PAUSE = 0.1
@@ -95,24 +107,37 @@ try:
                 print('Up arrow found')
                 go_up()
                 pyautogui.click(351,243)
+
+            labor_lines = False
                 
             if button_location is not None:
                 print('\nLooking for LABOR.')
 
-                im = ImageGrab.grab(bbox =(81,233,193,970))
-                new_size = tuple(4*x for x in im.size)
-                im = im.resize(new_size, Image.ANTIALIAS)
-                im_bl = im.filter(ImageFilter.GaussianBlur(radius = 1))
-                im_gs = im_bl.convert('LA')
+                part = ImageGrab.grab(bbox =(81,233,193,970))
+                new_size = tuple(4*x for x in part.size)
+                part = part.resize(new_size, Image.ANTIALIAS)
+                part_bl = part.filter(ImageFilter.GaussianBlur(radius = 1))
+                part_gs = part_bl.convert('LA')
                 custom_oem_psm_config = r'--oem 3 --psm 6'
-                string = pytesseract.image_to_string(im_gs, config=custom_oem_psm_config)
-                string_list = string.split("\n")
+                part_string = pytesseract.image_to_string(part_gs, config=custom_oem_psm_config)
+                part_string_list = part_string.split("\n")
 
-                if 'PWHT' in string:
+                line_number = ImageGrab.grab(bbox =(52,234,80,967))
+                new_size = tuple(4*x for x in line_number.size)
+                line_number = line_number.resize(new_size, Image.ANTIALIAS)
+                line_number_bl = line_number.filter(ImageFilter.GaussianBlur(radius = 1))
+                line_number_gs = line_number_bl.convert('LA')
+                custom_oem_psm_config = r'--oem 3 --psm 6'
+                line_number_string = pytesseract.image_to_string(line_number_gs, config=custom_oem_psm_config)
+                line_number_string_list = line_number_string.split("\n")
+
+                line_number_string_list = remove_values_from_list(line_number_string_list, "")
+
+                if 'PWHT' in part_string:
                     pwht = True
                     print('There is PWHT in this job.')
                 
-                if 'LABOR' in string:
+                if 'LABOR' in part_string:
                     page = 1
                     labor_lines = True
                     print('There is LABOR in this job.')
@@ -122,62 +147,81 @@ try:
                 while labor_loop:
                     pyautogui.click(891,961, clicks=35, interval=0.05) # down arrow
                     time.sleep(0.25)
-                    im = ImageGrab.grab(bbox =(81,233,193,970))
-                    new_size = tuple(4*x for x in im.size)
-                    im = im.resize(new_size, Image.ANTIALIAS)
-                    im_bl = im.filter(ImageFilter.GaussianBlur(radius = 1))
-                    im_gs = im_bl.convert('LA')
+                    part = ImageGrab.grab(bbox =(81,233,193,970))
+                    new_size = tuple(4*x for x in part.size)
+                    part = part.resize(new_size, Image.ANTIALIAS)
+                    part_bl = part.filter(ImageFilter.GaussianBlur(radius = 1))
+                    part_gs = part_bl.convert('LA')
                     custom_oem_psm_config = r'--oem 3 --psm 6'
-                    string2 = pytesseract.image_to_string(im_gs, config=custom_oem_psm_config)
+                    part_string2 = pytesseract.image_to_string(part_gs, config=custom_oem_psm_config)
+                    part_string_list2 = part_string2.split("\n")
 
-                    string_list2 = string2.split("\n")
-                    string_list = string_list + string_list2
+                    line_number = ImageGrab.grab(bbox =(52,234,80,967))
+                    new_size = tuple(4*x for x in line_number.size)
+                    line_number = line_number.resize(new_size, Image.ANTIALIAS)
+                    line_number_bl = line_number.filter(ImageFilter.GaussianBlur(radius = 1))
+                    line_number_gs = line_number_bl.convert('LA')
+                    custom_oem_psm_config = r'--oem 3 --psm 6'
+                    line_number_string2 = pytesseract.image_to_string(line_number_gs, config=custom_oem_psm_config)
+                    line_number_string_list2 = line_number_string2.split("\n")
+
+                    line_number_string_list2 = remove_values_from_list(line_number_string_list2, "")
                     
                     bottom_arrow = pyautogui.locateOnScreen('bottom_arrow.png', region=(880,940,30,40))
                     
-                    if 'LABOR' in string2:
+                    if 'LABOR' in part_string2:
                         labor_lines = True
-                        labor_loop = False
                         print('There is LABOR in this job.')
-                        #break
 
-                    if 'PWHT' in string2:
+                    if 'PWHT' in part_string2:
                         pwht = True
-                        #labor_loop = False
                         print('There is PWHT in this job.')
-                        #break
-                    
-                    if bottom_arrow is not None:
-                        labor_lines = False
-                        labor_loop = True
-                        print('There is no LABOR in this job.')
-                        #break
+
+                    line_number_string_list2 = line_number_string2.split("\n")
+
+                    if line_number_string_list2[0] in line_number_string_list[len(line_number_string_list)-1]:
+                        print("At Bottom")
+                        labor_loop = False
+                    else:
+                        part_string_list = part_string_list + part_string_list2
+                        line_number_string_list = line_number_string_list + line_number_string_list2
 
             else:
                 print('\nLooking for LABOR.')
 
-                im = ImageGrab.grab(bbox =(81,233,193,970))
-                new_size = tuple(4*x for x in im.size)
-                im = im.resize(new_size, Image.ANTIALIAS)
-                im_bl = im.filter(ImageFilter.GaussianBlur(radius = 1))
-                im_gs = im_bl.convert('LA')
+                part = ImageGrab.grab(bbox =(81,233,193,970))
+                new_size = tuple(4*x for x in part.size)
+                part = part.resize(new_size, Image.ANTIALIAS)
+                part_bl = part.filter(ImageFilter.GaussianBlur(radius = 1))
+                part_gs = part_bl.convert('LA')
                 custom_oem_psm_config = r'--oem 3 --psm 6'
-                string = pytesseract.image_to_string(im_gs, config=custom_oem_psm_config)
-                string_list = string.split("\n")
+                part_string = pytesseract.image_to_string(part_gs, config=custom_oem_psm_config)
+                part_string_list = part_string.split("\n")
+
+                line_number = ImageGrab.grab(bbox =(52,234,80,967))
+                new_size = tuple(4*x for x in line_number.size)
+                line_number = line_number.resize(new_size, Image.ANTIALIAS)
+                line_number_bl = line_number.filter(ImageFilter.GaussianBlur(radius = 1))
+                line_number_gs = line_number_bl.convert('LA')
+                custom_oem_psm_config = r'--oem 3 --psm 6'
+                line_number_string = pytesseract.image_to_string(line_number_gs, config=custom_oem_psm_config)
+                line_number_string_list = line_number_string.split("\n")
+
+                line_number_string_list = remove_values_from_list(line_number_string_list, "")
                 
-                if 'LABOR' in string:
+                if 'LABOR' in part_string:
                     labor_lines = True
                     print('There is LABOR in this job.')
                 else:
                     labor_lines = False
                     print('There is no LABOR in this job.')
-                if 'PWHT' in string:
+                if 'PWHT' in part_string_list:
                     pwht = True
                     print('There is PWHT in this job.')
                 
             pyautogui.PAUSE = 0.1
 
-            string_list_len = len(string_list)
+            string_list_len = len(part_string_list)
 
             go_up()
 
@@ -185,7 +229,7 @@ try:
                 pyautogui.doubleClick(130,243)
                 current_part_no = copy_clipboard()
                 pyautogui.PAUSE = 0.1
-                if 'PWHT' in string_list[0]:
+                if 'PWHT' in part_string_list[0]:
                     pyautogui.click(920,290)
                     time.sleep(0.25)
                     pyautogui.typewrite(['tab'])
@@ -193,19 +237,18 @@ try:
                     time.sleep(0.25)
                     current_part_no9 = copy_clipboard()
                     up_count = 0
-                    go_up = True
-                    while go_up:
+                    go_up_loop = True
+                    while go_up_loop:
                         pyautogui.typewrite(['up'])
                         current_part_no9 = copy_clipboard()
                         if 'LABOR' not in current_part_no9:
-                            go_up = False
+                            go_up_loop = False
                             break
                         up_count = up_count + 1
                     for down in range(up_count+1):
                         pyautogui.typewrite(['down'])
                     pyautogui.click(922,247,clicks=up_count,interval=0.025)
-                #else:
-                if 'PWHT' in string_list[string_list_len - 1]:
+                if 'PWHT' in part_string_list[string_list_len - 1]:
                     if button_location:
                         go_up()
                         pyautogui.doubleClick(130,243)
@@ -248,57 +291,20 @@ try:
 
             down_loop = True
 
-            if 'LABOR' in string_list[string_list_len - 1]:
+            if 'LABOR' in part_string_list[string_list_len - 1]:
                 print('Labor at bottom')
                 labor_lines = False
-            if 'LABOR' in string_list[0]:
+            if 'LABOR' in part_string_list[0]:
                 print('Labor at top')
                 labor_lines = True
-            """
-            if button_location is not None and labor_lines is True:
-                pyautogui.click(890,948, clicks=4, interval=0.05)
-                pyautogui.click(890,964)
-                pyautogui.doubleClick(130,243)
-                current_part_no2 = copy_clipboard()
-                current = current_part_no2.split('-')
-                if labor_no in current:
-                    print('Labor at bottom')
-                    labor_lines = False
-                go_up()
-                down_loop = False
-            
-            elif button_location is None and labor_lines is True:
-                pyautogui.doubleClick(130,243)
-                down_loop = True
-                current_part_no4 = copy_clipboard()
-                current = current_part_no4.split('-')
-                if labor_no in current:
-                    print('Labor at top.')
-                    down_loop = False
-                    labor_lines = True
-                else:
-                    while down_loop:
-                        pyautogui.PAUSE = 0.03
-                        im1 = pyautogui.screenshot()
-                        for i in range(10):
-                            pyautogui.typewrite(['down'])
-                        im2 = pyautogui.screenshot()
-                        if im1 == im2:
-                            down_loop = False
-                            break
-                        current_part_no3 = copy_clipboard()
-                        current = current_part_no3.split('-')
-                    if labor_no in current:
-                        labor_lines = False
-                        print('Labor at bottom')
-            """   
+                
             if labor_lines:
                 go_up()
                 pyautogui.doubleClick(130,243)
                 print('\nLooking for LABOR lines.')
 
                 for i in range(0,string_list_len):
-                    current_part = string_list[i]
+                    current_part = part_string_list[i]
                     if "LABOR" in current_part:
                         total_lines = i
                         for down in range(total_lines):
@@ -308,25 +314,9 @@ try:
                         break
                 
                 pyautogui.doubleClick(130,243)
-                """
-                labor = False
-                total_lines = 0
-                while labor is False:
-                    current_part_no1 = copy_clipboard()
-                    current = current_part_no1.split('-')
-                    if labor_no in current:
-                        pyautogui.click(919,291)
-                        labor = True
-                        time.sleep(.5)
-                        break
-                    pyautogui.typewrite(['down'])
-                    pyautogui.PAUSE = 0.1
-                    total_lines = total_lines + 1
-                first_labor = current_part_no1
-                print('First LABOR line is: ' + str(first_labor))
-                """
-                print('First LABOR line is: ' + string_list[total_lines])
-                first_labor = string_list[total_lines]
+                
+                print('First LABOR line is: ' + part_string_list[total_lines])
+                first_labor = part_string_list[total_lines]
 
                 go_up()
                 pyautogui.doubleClick(130,243)
@@ -370,7 +360,7 @@ try:
 
             
             if pwht:
-                if 'PWHT' in string_list[0]:
+                if 'PWHT' in part_string_list[0]:
                     go_up()
                     pyautogui.doubleClick(130,243)
                     current_part_no = copy_clipboard()
@@ -378,7 +368,7 @@ try:
                     if 'PWHT' in current_part_no:
                         pyautogui.click(921,292)
                         time.sleep(0.25)
-                if 'PWHT' in string_list[string_list_len - 1]:
+                if 'PWHT' in part_string_list[string_list_len - 1]:
                     go_up()
                     while down_loop:
                         pyautogui.PAUSE = 0.03
@@ -397,12 +387,12 @@ try:
                         time.sleep(0.25)
                         current_part_no9 = copy_clipboard()
                         up_count = 0
-                        go_up = True
-                        while go_up:
+                        go_up_loop = True
+                        while go_up_loop:
                             pyautogui.typewrite(['up'])
                             current_part_no9 = copy_clipboard()
                             if 'LABOR' not in current_part_no9:
-                                go_up = False
+                                go_up_loop = False
                                 break
                             up_count = up_count + 1
                         for down in range(up_count+1):
@@ -418,6 +408,7 @@ try:
             if '1' in str(add_part):
                 pyautogui.PAUSE = 0.1
                 add_part = True
+                go_up_count = True
                 up_count = 0
                 while add_part:
                     new_part = input('What is the new part number?: ')
@@ -430,23 +421,28 @@ try:
                     pyautogui.hotkey('shift','tab')
                     time.sleep(0.25)
                     current_part_no9 = copy_clipboard()
-                    go_up_count = True
                     up_count = 0
-                    while go_up_count:
-                        pyautogui.typewrite(['up'])
-                        current_part_no9 = copy_clipboard()
-                        if 'LABOR' not in current_part_no9 and 'PWHT' not in current_part_no9:
-                            go_up_count = False
-                            break
-                        up_count = up_count + 1
-                    for down in range(up_count+1):
-                        pyautogui.typewrite(['down'])
-                    pyautogui.click(922,247,clicks=up_count,interval=0.025)
+                    if go_up_count:
+                        while go_up_count:
+                            pyautogui.typewrite(['up'])
+                            current_part_no9 = copy_clipboard()
+                            if 'LABOR' not in current_part_no9 and 'PWHT' not in current_part_no9:
+                                go_up_count = False
+                                break
+                            up_count = up_count + 1
+                        for down in range(up_count+1):
+                            pyautogui.typewrite(['down'])
+                        pyautogui.click(922,247,clicks=up_count,interval=0.025)
+                    else:
+                        pyautogui.click(920,247)
+                        pyautogui.click(920,271)
                     pyautogui.click(1423,15)
                     add_more = input('Are there more parts to add?: ')
                     if '0' in str(add_more):
                         add_part = False
                         break
+                    else:
+                        go_up_count = False
             
             change_part = input('Are there part numbers that need to change?: ')
             
@@ -542,16 +538,16 @@ try:
                 
             pyautogui.click(1423,15)
             pyautogui.PAUSE = 0.05
-            line_skip = int(input('How many lines need to be skipped?: '))
+            #line_skip = int(input('How many lines need to be skipped?: '))
+            line_skip = 0
             print('\nPress Ctrl-C to quit.')
-            pyautogui.click(1423,15)
+            #pyautogui.click(1423,15)
             # start loop to get the line and amount information
             # type stop to move on
             item_list = []
             amount_list = []
             heat_list = []
             last_heat_number = ''
-            #job_range = []
             stop_loop = False
             while not stop_loop:
                 try:
@@ -597,12 +593,11 @@ try:
                     item_list.pop(len_pop-1)
                     print("\nValue error.")
                     continue
-                
+            
             go_up()
+            pyautogui.PAUSE = 0.1
             max_range = len(item_list)
             pyautogui.click(1423,15)
-            #print(item_list)
-            #skip_me = input("Do you have numbers to change? (1/0): ")
             skip_me = '1'
             pyautogui.doubleClick(219,243)
             if '1' in str(skip_me):
@@ -610,25 +605,40 @@ try:
                 if max_range ==1:
                     item_change = item_list[0]
                     amount_change = amount_list[0]
+                    heat_change = heat_list[0]
                     line = int(line_skip) + int(item_change) -1
                     for number_of_down in range(line):
                         pyautogui.typewrite(['down'])
                         time.sleep(0.05)
-                    pyautogui.typewrite(str(amount_change))        
+                    pyautogui.typewrite(str(amount_change))
+                    pyautogui.typewrite(['tab'])
+                    pyautogui.typewrite(str(heat_change))
+                    #pyautogui.typewrite(['tab'])
+                    #pyautogui.typewrite(str(heat_change))
+                    #pyautogui.hotkey('shift','tab')
+                    pyautogui.hotkey('shift','tab')
                     
                 else:
                     item_change_1 = item_list[0]
                     amount_change_1 = amount_list[0]
+                    heat_change_1 = heat_list[0]
                     line_1 = int(line_skip) + int(item_change_1) -1
                     for number_of_down in range(line_1):
                         pyautogui.typewrite(['down'])
                     pyautogui.typewrite(str(amount_change_1))
+                    pyautogui.typewrite(['tab'])
+                    pyautogui.typewrite(str(heat_change_1))
+                    #pyautogui.typewrite(['tab'])
+                    #pyautogui.typewrite(str(heat_change_1))
+                    #pyautogui.hotkey('shift','tab')
+                    pyautogui.hotkey('shift','tab')
 
                     last_line = item_change_1
                     
                     for change in range(1,max_range):
                         item_change = item_list[change]
                         amount_change = amount_list[change]
+                        heat_change = heat_list[change]
                         line = int(item_change) - last_line
                         if line > 0:
                             for number_of_down in range(line):
@@ -639,89 +649,14 @@ try:
                                 pyautogui.typewrite(['up'])
                                 time.sleep(0.05)
                         pyautogui.typewrite(str(amount_change))
+                        pyautogui.typewrite(['tab'])
+                        pyautogui.typewrite(str(heat_change))
+                        #pyautogui.typewrite(['tab'])
+                        #pyautogui.typewrite(str(heat_change))
+                        #pyautogui.hotkey('shift','tab')
+                        pyautogui.hotkey('shift','tab')
                         last_line = item_change
-            # HT Number
-            time.sleep(0.25)
-            go_up()
             
-            pyautogui.doubleClick(356,243)
-            
-            if max_range ==1:
-                item_change = item_list[0]
-                heat_change = heat_list[0]
-                line = int(line_skip) + int(item_change) -1
-                for number_of_down in range(line):
-                    pyautogui.typewrite(['down'])
-                    time.sleep(0.05)
-                pyautogui.typewrite(str(heat_change))        
-                
-            else:
-                item_change_1 = item_list[0]
-                heat_change_1 = heat_list[0]
-                line_1 = int(line_skip) + int(item_change_1) -1
-                for number_of_down in range(line_1):
-                    pyautogui.typewrite(['down'])
-                    time.sleep(0.05)
-                pyautogui.typewrite(str(heat_change_1))
-
-                last_line = item_change_1
-                
-                for change in range(1,max_range):
-                    item_change = item_list[change]
-                    heat_change = heat_list[change]
-                    line = int(item_change) - last_line
-                    if line > 0:
-                        for number_of_down in range(line):
-                            pyautogui.typewrite(['down'])
-                            time.sleep(0.05)
-                    elif line < 0:
-                        for number_of_up in range(abs(line)):
-                            pyautogui.typewrite(['up'])
-                            time.sleep(0.05)
-                    pyautogui.typewrite(str(heat_change))
-                    last_line = item_change
-            
-            # HT Number Comment
-            time.sleep(0.25)
-            go_up()
-            
-            pyautogui.doubleClick(794,243)
-            
-            if max_range ==1:
-                item_change = item_list[0]
-                heat_change = heat_list[0]
-                line = int(line_skip) + int(item_change) -1
-                for number_of_down in range(line):
-                    pyautogui.typewrite(['down'])
-                    time.sleep(0.05)
-                pyautogui.typewrite(str(heat_change))        
-                
-            else:
-                item_change_1 = item_list[0]
-                heat_change_1 = heat_list[0]
-                line_1 = int(line_skip) + int(item_change_1) -1
-                for number_of_down in range(line_1):
-                    pyautogui.typewrite(['down'])
-                    time.sleep(0.05)
-                pyautogui.typewrite(str(heat_change_1))
-
-                last_line = item_change_1
-                
-                for change in range(1,max_range):
-                    item_change = item_list[change]
-                    heat_change = heat_list[change]
-                    line = int(item_change) - last_line
-                    if line > 0:
-                        for number_of_down in range(line):
-                            pyautogui.typewrite(['down'])
-                            time.sleep(0.05)
-                    elif line < 0:
-                        for number_of_up in range(abs(line)):
-                            pyautogui.typewrite(['up'])
-                            time.sleep(0.05)
-                    pyautogui.typewrite(str(heat_change))
-                    last_line = item_change
-                    
             time.sleep(0.25)
             go_up()
             part_list = []
@@ -945,14 +880,9 @@ try:
             while len(gw.getWindowsWithTitle('Start Manufacturing Order Detail')) == 0:
                 time.sleep(1)
             time.sleep(0.5)
-            #pyautogui.click(1423,15)
-            #print('\nCtrl-C to quit')
-            #wip = input('Which direction do you want to transfer? (+ = to WIP/- = to Stock): ')
             time.sleep(0.1)
             pyautogui.PAUSE = 0.1
             
-            #if '-' in wip:
-                #pyautogui.click(831,682)
             start_transfer = time.time()
         # material transfer loop
             red_x_list = []
@@ -1024,7 +954,12 @@ try:
                         pyautogui.click(831,682)
                         amount_transfer = start_wip - float(amount_list[transfer])
                 else:
-                    if start_wip == amount_transfer:
+                    if amount_transfer == 0:
+                        wip = '0'
+                        print('\nTransfer amount is 0')
+                        red_x_list.append('Transfer amount is 0')
+                        transfer_switch = False
+                    elif start_wip == amount_transfer:
                         wip = '0'
                         print('\nItem {} already in WIP'.format(item_transfer))
                         red_x_list.append('Already in WIP')
@@ -1065,7 +1000,7 @@ try:
 
                     pyautogui.click(1034,597)
                     pyautogui.click(868,568)
-                    print('\nTransfering {} {} for item {}'.format(amount_transfer, stocking, item_transfer))
+                    print('\nTransfering {} {} for item {}'.format(round(amount_transfer,3), stocking, item_transfer))
                     
                     if red_x_look:
                         if red_x is not None:
@@ -1094,6 +1029,8 @@ try:
 
             pyautogui.doubleClick(210,101)
             job_no = copy_clipboard()
+            
+            """
             file_routing()
 
             current_date = time.strftime('%Y-%m-%d, %Hh %Mm %Ss', time.localtime())
@@ -1144,6 +1081,7 @@ try:
                                          'Heat number': heat_number_writer, 'Amount': amount_writer, 'WIP Before': wip_text_writer,
                                          'WIP After': wip_after_writer, 'Stock': red_x_writer, 'Stock Amount': stock_text_writer,
                                          'Released': released_text_writer, 'On Order': on_order_text_writer})
+            """
 
             os.chdir(r"D:\MIsys Data")
 
@@ -1218,4 +1156,10 @@ try:
         ask_for_next_job = True
 
 except KeyboardInterrupt:
-    print('\nDone')
+    pass
+
+combine_workbook()
+
+os.chdir(r"C:\Users\jlee.NTPV\Documents\GitHub\material_transfer")
+
+print('\nDone')
