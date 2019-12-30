@@ -73,6 +73,7 @@ try:
                 if released_by is not None:
                     waiting = False
                     break
+            """
             pyautogui.doubleClick(214,102)
             next_job = copy_clipboard()
             time.sleep(0.1)
@@ -90,6 +91,7 @@ try:
                     job = True
                     break
                 time.sleep(0.25)
+            """
                 
         total_start = time.time()
         
@@ -253,8 +255,9 @@ try:
 
             
             down_loop = True
-            move_labor_lines = True
+            move_labor_lines = False
             if labor_lines:
+                move_labor_lines = True
                 # check if LABOR is at the bottom
                 if 'LABOR' in part_string_list[string_list_len - 1]:
                     print('Labor at bottom')
@@ -976,8 +979,13 @@ try:
                         item = transfers_list[search]
                         required = amount_transfer_list[search]
                         stock = float(stock_list[search])
+                        past_wip = wip_list[search]
+                        #print(item)
+                        #print(required)
+                        #print(stock)
+                        #print(past_wip)
                         if item == part and stock > 0:
-                            if '+' in wip:
+                            if '+' in past_wip:
                                 stock = float(stock) - float(required)
                             else:
                                 stock = float(stock) + float(required)
@@ -998,8 +1006,9 @@ try:
                             print("\nNone of item {} in stock".format(item_transfer))
                             wip = '0'
                             red_x_list.append('None in stock')
-                            repeat_item_list.append(item_transfer)
-                            repeat_amount_list.append("0")
+                            if not transfer_add:
+                                repeat_item_list.append(item_transfer)
+                                repeat_amount_list.append("0")
                             transfer_switch = False
                             amount_transfer = float(0)
                         else:
@@ -1008,8 +1017,9 @@ try:
                                 amount_transfer = stock
                                 print('\nNot enough of item {} in stock'.format(item_transfer))
                                 red_x_list.append('Not enough in stock')
-                                repeat_item_list.append(item_transfer)
-                                repeat_amount_list.append(amount_transfer)
+                                if not transfer_add:
+                                    repeat_item_list.append(item_transfer)
+                                    repeat_amount_list.append(amount_transfer)
                                 transfer_switch = True
                                 wip_switch = True
                             else:
