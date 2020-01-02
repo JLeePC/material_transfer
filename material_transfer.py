@@ -439,7 +439,7 @@ try:
                     pyautogui.click(920,312) # new line
                     time.sleep(0.25)
                     pyautogui.typewrite(str(new_part))
-                    time.sleep(0.5)
+                    time.sleep(1)
                     pyautogui.typewrite(['tab'])
                     time.sleep(0.25)
                     pyautogui.hotkey('shift','tab')
