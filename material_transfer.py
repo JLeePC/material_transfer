@@ -320,6 +320,8 @@ try:
                     current_part = part_string_list[i]
                     if "LABOR" in current_part:
                         total_lines = i
+                        if pwht_lines:
+                            total_lines = total_lines -1
                         for down in range(total_lines):
                             pyautogui.typewrite(['down'])
                         time.sleep(0.5)
@@ -327,9 +329,12 @@ try:
                         break
                 
                 pyautogui.doubleClick(130,243)
-                
-                print('First LABOR line is: ' + part_string_list[total_lines])
-                first_labor = part_string_list[total_lines]
+                if pwht_lines:
+                    print('First LABOR line is: ' + part_string_list[total_lines+1])
+                    first_labor = part_string_list[total_lines+1]
+                else:
+                    print('First LABOR line is: ' + part_string_list[total_lines])
+                    first_labor = part_string_list[total_lines]
 
                 # move the rest of the LABOR lines
                 go_up()
@@ -439,7 +444,7 @@ try:
                     pyautogui.click(920,312) # new line
                     time.sleep(0.25)
                     pyautogui.typewrite(str(new_part))
-                    time.sleep(1)
+                    time.sleep(1.5)
                     pyautogui.typewrite(['tab'])
                     time.sleep(0.25)
                     pyautogui.hotkey('shift','tab')
@@ -996,94 +1001,63 @@ try:
                     red_x_list.append('Transfer amount is 0')
                     transfer_switch = False
                 else:
-                    if start_wip == amount_transfer: # already in wip
-                        wip = '0'
-                        print('\nItem {} already in WIP'.format(item_transfer))
-                        red_x_list.append('Already in WIP')
-                        transfer_switch = False
-                    else:
-                        if stock == 0:
-                            print("\nNone of item {} in stock".format(item_transfer))
-                            wip = '0'
-                            red_x_list.append('None in stock')
-                            if not transfer_add:
-                                repeat_item_list.append(item_transfer)
-                                repeat_amount_list.append("0")
-                            transfer_switch = False
-                            amount_transfer = float(0)
-                        else:
-                            if amount_transfer > stock: #not enough in stock
-                                wip = '+'
-                                amount_transfer = stock
-                                print('\nNot enough of item {} in stock'.format(item_transfer))
-                                red_x_list.append('Not enough in stock')
-                                if not transfer_add:
-                                    repeat_item_list.append(item_transfer)
-                                    repeat_amount_list.append(amount_transfer)
-                                transfer_switch = True
-                                wip_switch = True
-                            else:
-                                transfer_switch = True
-                                if transfer_add:
-                                    wip = '+'
-                                    wip_switch = True
-                                else:
-                                    if amount_transfer > start_wip:
-                                        wip_switch = True
-                                        wip = '+'
-                                        amount_transfer = amount_transfer - start_wip
-                                    else:
-                                        wip = '-'
-                                        wip_switch = False
-                                        pyautogui.click(831,682)
-                                        amount_transfer = start_wip - float(amount_list[transfer])
-                                        red_x_list.append('Too much in WIP')
-
-                """
-                # this is old code
-                # if stock is above 0 transfer
-                if float(stock) > 0:
                     transfer_switch = True
-                    # if item is already in wip dont tranfer
-                    if start_wip == amount_transfer:
-                        wip = '0'
-                        print('\nItem {} already in WIP'.format(item_transfer))
-                        red_x_list.append('Already in WIP')
-                        transfer_switch = False
-                    # if the amount required is more than whats in stock
-                    elif amount_transfer > stock:
-                        wip = '0'
-                        amount_transfer = stock
-                        print('\nNot enough of item {} in stock'.format(item_transfer))
-                        red_x_list.append('Not enough in stock')
-                        repeat_item_list.append(item_transfer)
-                        repeat_amount_list.append(amount_transfer)
-
-                    if amount_transfer > start_wip and not transfer_add:
-                        amount_transfer = amount_transfer - start_wip
-
-                    if start_wip > float(amount_list[transfer]) and not transfer_add:
+                    if amount_transfer < start_wip:
                         wip = '-'
+                        wip_switch = False
                         pyautogui.click(831,682)
                         amount_transfer = start_wip - float(amount_list[transfer])
-                else:
-                    if amount_transfer == 0:
-                        wip = '0'
-                        print('\nTransfer amount is 0')
-                        red_x_list.append('Transfer amount is 0')
-                        transfer_switch = False
-                    elif start_wip == amount_transfer:
-                        wip = '0'
-                        print('\nItem {} already in WIP'.format(item_transfer))
-                        red_x_list.append('Already in WIP')
-                        transfer_switch = False
+                        wip_after = start_wip - amount_transfer
+                        red_x_list.append('Too much in WIP')
                     else:
-                        print("\nNone of item {} in stock".format(item_transfer))
-                        wip = '0'
-                        red_x_list.append('None in stock')
-                        repeat_item_list.append(item_transfer)
-                        repeat_amount_list.append("0")
-                """
+                        wip_switch = True
+                        wip = '+'
+                        
+                        if start_wip == amount_transfer: # already in wip
+                            wip = '0'
+                            print('\nItem {} already in WIP'.format(item_transfer))
+                            red_x_list.append('Already in WIP')
+                            transfer_switch = False
+                        else:
+                            if stock == 0:
+                                print("\nNone of item {} in stock".format(item_transfer))
+                                wip = '0'
+                                red_x_list.append('None in stock')
+                                if not transfer_add:
+                                    repeat_item_list.append(item_transfer)
+                                    repeat_amount_list.append("0")
+                                transfer_switch = False
+                                amount_transfer = float(0)
+                            else:
+                                if amount_transfer > stock: #not enough in stock
+                                    wip = '+'
+                                    amount_transfer = stock
+                                    print('\nNot enough of item {} in stock'.format(item_transfer))
+                                    red_x_list.append('Not enough in stock')
+                                    if not transfer_add:
+                                        repeat_item_list.append(item_transfer)
+                                        repeat_amount_list.append(amount_transfer)
+                                    transfer_switch = True
+                                    wip_switch = True
+                                else:
+                                    transfer_switch = True
+                                    if transfer_add:
+                                        wip = '+'
+                                        wip_switch = True
+                                    amount_transfer = amount_transfer - start_wip
+                                    """
+                                    else:
+                                        if amount_transfer > start_wip:
+                                            wip_switch = True
+                                            wip = '+'
+                                            amount_transfer = amount_transfer - start_wip
+                                        else:
+                                            wip = '-'
+                                            wip_switch = False
+                                            pyautogui.click(831,682)
+                                            amount_transfer = start_wip - float(amount_list[transfer])
+                                            red_x_list.append('Too much in WIP')
+                                    """
                     
                 transfer_time = time.strftime('%Y-%m-%d, %H:%M:%S', time.localtime())
                 transfer_time_list.append(transfer_time)
