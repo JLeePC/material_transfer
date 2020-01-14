@@ -307,7 +307,8 @@ try:
                             # move PWHT to bottom
                             pyautogui.click(919,291)
                             # TODO if labor is at bottom automatically move the PWHT above it so it can skip moving all the labor below it
-
+            else:
+                pwht_lines = False
             
             # move LABOR to bottom
             if move_labor_lines:
@@ -736,6 +737,7 @@ try:
                     pyautogui.typewrite(str(heat_change)) # input heat number
                     pyautogui.hotkey('shift','tab') # shift tab back
                 pyautogui.hotkey('shift','tab')
+                time.sleep(1)
             
             # this is all the same as above for the fist item
             else:
@@ -809,6 +811,7 @@ try:
                     pyautogui.typewrite(str(heat_change_1))
                     pyautogui.hotkey('shift','tab')
                 pyautogui.hotkey('shift','tab')
+                time.sleep(1)
                 
                 # then it remembers the last line item it when to so it can go down or up to the next line
                 last_line = item_change_1
@@ -892,6 +895,7 @@ try:
                         pyautogui.typewrite(str(heat_change))
                         pyautogui.hotkey('shift','tab')
                     pyautogui.hotkey('shift','tab')
+                    time.sleep(1)
 
                     # this is to remember the line its at so it can go down or up to the next one
                     last_line = item_change
