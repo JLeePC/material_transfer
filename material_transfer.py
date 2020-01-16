@@ -737,7 +737,7 @@ try:
                     pyautogui.typewrite(str(heat_change)) # input heat number
                     pyautogui.hotkey('shift','tab') # shift tab back
                 pyautogui.hotkey('shift','tab')
-                time.sleep(1)
+                time.sleep(0.5)
             
             # this is all the same as above for the fist item
             else:
@@ -811,7 +811,7 @@ try:
                     pyautogui.typewrite(str(heat_change_1))
                     pyautogui.hotkey('shift','tab')
                 pyautogui.hotkey('shift','tab')
-                time.sleep(1)
+                time.sleep(0.5)
                 
                 # then it remembers the last line item it when to so it can go down or up to the next line
                 last_line = item_change_1
@@ -895,7 +895,7 @@ try:
                         pyautogui.typewrite(str(heat_change))
                         pyautogui.hotkey('shift','tab')
                     pyautogui.hotkey('shift','tab')
-                    time.sleep(1)
+                    time.sleep(0.5)
 
                     # this is to remember the line its at so it can go down or up to the next one
                     last_line = item_change
