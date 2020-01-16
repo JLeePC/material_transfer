@@ -1083,7 +1083,7 @@ try:
                     okWindow = gw.getWindowsWithTitle('Start Manufacturing Order Detail')
                     while len(gw.getWindowsWithTitle('Start Manufacturing Order Detail')) == 1:
                         time.sleep(0.25)
-                    
+                    time.sleep(0.5)
                     if wip_switch:
                         time.sleep(0.25)
                         red_x = pyautogui.locateOnScreen('red_x.png', region=(650,450,100,100))
